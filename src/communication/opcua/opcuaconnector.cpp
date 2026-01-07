@@ -176,9 +176,13 @@ int OPCUAConnector::init(QStringList paramList)
             }
 
             UA_Variant_clear(&var);
-            // qDebug() << "++++++++++++mMaxNodesPerRead:"
-            //          << UA_StatusCode_name(ret)
-            //          << mMaxNodesPerRead;
+            qDebug() << "++++++++++++mMaxNodesPerRead:"
+                     << UA_StatusCode_name(ret)
+                     << mMaxNodesPerRead;
+            if(mMaxNodesPerRead == 0)
+            {
+                mMaxNodesPerRead = MAX_SIZE_PER_OPERATION;
+            }
         }
 
         // 获取服务器的OperationLimits-MaxNodesPerWrite
@@ -201,6 +205,10 @@ int OPCUAConnector::init(QStringList paramList)
             qDebug() << "++++++++++++mMaxNodesPerWrite:"
                      << UA_StatusCode_name(ret)
                      << mMaxNodesPerWrite;
+            if(mMaxNodesPerWrite)
+            {
+                mMaxNodesPerWrite = MAX_SIZE_PER_OPERATION;
+            }
         }
 
         // MaxMonitoredItemsPerCall
@@ -222,6 +230,10 @@ int OPCUAConnector::init(QStringList paramList)
             qDebug() << "++++++++++++mMaxMonitoredItemsPerCall:"
                      << UA_StatusCode_name(ret)
                      << mMaxMonitoredItemsPerCall;
+            if(mMaxMonitoredItemsPerCall)
+            {
+                mMaxMonitoredItemsPerCall = MAX_SIZE_PER_OPERATION;
+            }
         }
 
         // mClientConnected = true;

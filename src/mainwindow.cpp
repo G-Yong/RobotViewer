@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setWindowTitle(tr("RobotViewer"));
+    setWindowTitle(tr("RobotViewer") + QString(" V%1").arg(SOFTWARE_VERSION));
     resize(1200, 800);
     
     setupUI();
@@ -217,6 +217,7 @@ void MainWindow::setupMenus()
     
     // 工具栏
     QToolBar* toolbar = addToolBar(tr("主工具栏"));
+    toolbar->setObjectName("myToolBar");
     toolbar->addAction(openAction);
     toolbar->addSeparator();
     toolbar->addAction(resetCameraAction);

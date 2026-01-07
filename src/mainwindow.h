@@ -5,6 +5,10 @@
 #include <QLabel>
 #include <QMap>
 
+#pragma execution_character_set("utf-8")
+
+#define SOFTWARE_VERSION QString("0.0.2")
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;

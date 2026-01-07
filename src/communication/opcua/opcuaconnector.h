@@ -15,6 +15,7 @@
 #endif
 
 // #define USE_OPCUA_SUBSCRIPTION
+#define MAX_SIZE_PER_OPERATION 100
 
 class OPCUAConnector : public BaseConnector
 {

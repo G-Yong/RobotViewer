@@ -475,13 +475,17 @@ void OpcuaWidget::readOpcuaValues()
             QStringList nameList = valMap.keys();
             for(int i = 0; i < nameList.length(); i++)
             {
-                QString name = nameList.at(i);
-                valMap[name] = unitList.at(i).value.toDouble();
+                QString jointName = nameList.at(i);
+
+                double jointValue = unitList.at(i).value.toDouble();
+                // 取到的值要转成弧度值
+                jointValue = qDegreesToRadians(jointValue);
+                valMap.insert(jointName, jointValue);
             }
         }
     }
 
-    // qDebug() << "read plc interval:" << timer.elapsed();
+    // qDebug() << "read plc interval:" << timer.elapsed() << valMap;
 
     // 读取完之后再一次性刷新
     emit jointValueUpdated(valMap);
