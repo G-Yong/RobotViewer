@@ -141,6 +141,13 @@ public:
     QMap<QString, TrajectoryEntity*> getEndEffectorTrajectories() const;
     
     /**
+     * @brief 获取实体的世界变换矩阵（从局部坐标到世界坐标）
+     * @param entity 目标实体
+     * @return 世界变换矩阵
+     */
+    QMatrix4x4 getWorldMatrix(Qt3DCore::QEntity *entity) const;
+    
+    /**
      * @brief 重置相机视角
      */
     void resetCamera();

@@ -513,6 +513,27 @@ QMap<QString, TrajectoryEntity*> RobotScene::getEndEffectorTrajectories() const
     return m_endEffectorTrajectories;
 }
 
+QMatrix4x4 RobotScene::getWorldMatrix(Qt3DCore::QEntity *entity) const
+{
+    QMatrix4x4 matrix;
+    matrix.setToIdentity();
+    
+    Qt3DCore::QEntity* current = entity;
+    while (current) {
+        if (current == m_rootEntity) {
+            break;
+        }
+        
+        auto transforms = current->componentsOfType<Qt3DCore::QTransform>();
+        if (transforms.length() > 0) {
+            auto transform = transforms.first();
+            matrix = transform->matrix() * matrix; // 注意乘法顺序
+        }
+        current = current->parentEntity();
+    }
+    return matrix;
+}
+
 void RobotScene::resetCamera()
 {
     if (m_cameraController) {

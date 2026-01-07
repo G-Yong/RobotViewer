@@ -127,6 +127,13 @@ public:
     QMatrix4x4 getLinkWorldTransform(const QString& linkName) const;
     
     /**
+     * @brief 获取指定名称的链接实体
+     * @param linkName 链接名称
+     * @return 链接实体指针，如果不存在则返回nullptr
+     */
+    LinkEntity* getLinkEntity(const QString& linkName) const;
+    
+    /**
      * @brief 设置末端链接名称（单个末端执行器，保留向后兼容）
      */
     void setEndEffectorLink(const QString& linkName);

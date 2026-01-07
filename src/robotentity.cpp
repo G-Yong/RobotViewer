@@ -513,6 +513,9 @@ QVector3D RobotEntity::getEndEffectorPosition(const QString& linkName) const
         worldMatrix = m_robotTransform->matrix();
     }
     worldMatrix = worldMatrix * linkTransform;
+
+    // QMatrix4x4 worldMatrix = getLinkWorldTransform(targetLink);
+
     
     // 返回链接坐标系原点的世界坐标
     return worldMatrix.column(3).toVector3D();
@@ -521,6 +524,11 @@ QVector3D RobotEntity::getEndEffectorPosition(const QString& linkName) const
 QMatrix4x4 RobotEntity::getLinkWorldTransform(const QString& linkName) const
 {
     return computeLinkTransform(linkName);
+}
+
+LinkEntity* RobotEntity::getLinkEntity(const QString& linkName) const
+{
+    return m_linkEntities.value(linkName, nullptr);
 }
 
 QVector3D RobotEntity::getLinkGeometryCenter(const QString& linkName) const
@@ -593,26 +601,21 @@ QMatrix4x4 RobotEntity::computeLinkTransform(const QString& linkName) const
     
     if (!m_model) return transform;
     
-    // 从目标链接向上遍历到根链接
-    QString currentLink = linkName;
-    QVector<QMatrix4x4> transforms;
-    
-    while (!currentLink.isEmpty() && currentLink != m_model->rootLink) {
-        auto parentJoint = m_model->getParentJoint(currentLink);
-        if (!parentJoint) break;
-        
-        // 获取关节变换
-        auto jointEntity = m_jointEntities.value(parentJoint->name);
-        if (jointEntity) {
-            transforms.prepend(jointEntity->transform()->matrix());
-        }
-        
-        currentLink = parentJoint->parentLink;
+    // 获取链接实体
+    LinkEntity* linkEntity = m_linkEntities.value(linkName, nullptr);
+    if (!linkEntity) {
+        return transform;
     }
     
-    // 组合所有变换
-    for (const auto& t : transforms) {
-        transform *= t;
+    // 从LinkEntity向上遍历到RobotEntity，累积所有变换
+    Qt3DCore::QEntity* current = linkEntity;
+    while (current && current != this) {
+        auto transforms = current->componentsOfType<Qt3DCore::QTransform>();
+        if (transforms.length() > 0) {
+            auto entityTransform = transforms.first();
+            transform = entityTransform->matrix() * transform; // 注意乘法顺序
+        }
+        current = current->parentEntity();
     }
     
     return transform;
