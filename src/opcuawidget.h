@@ -95,6 +95,11 @@ public:
 
 signals:
     /**
+     * @brief 设置变化信号
+     */
+    void settingsChanged();
+
+    /**
      * @brief 连接状态变化信号
      */
     void connectionStatusChanged(bool connected, const QString& message);
@@ -154,6 +159,8 @@ private:
     // 连接状态
     bool m_connected = false;
     bool m_sampling = false;
+
+    QDialog *mBindingDialog = nullptr;
 };
 
 #endif // OPCUAWIDGET_H

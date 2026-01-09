@@ -52,6 +52,7 @@ void RobotScene::initialize()
     m_container = QWidget::createWindowContainer(m_view);
     m_container->setMinimumSize(400, 300);
     m_container->setFocusPolicy(Qt::StrongFocus);
+
     
     // 创建根实体
     m_rootEntity = new Qt3DCore::QEntity();

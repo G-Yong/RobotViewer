@@ -131,41 +131,56 @@ void OpcuaWidget::setupUI()
 
     mainLayout->addWidget(samplingGroup);
 
-    // 变量绑定组
-    QGroupBox* bindingGroup = new QGroupBox(tr("变量绑定"), this);
-    QVBoxLayout* bindingLayout = new QVBoxLayout(bindingGroup);
+    // 将绑定操作在新弹窗中进行
+    {
+        mBindingDialog = new QDialog(this);
+        connect(mBindingDialog, &QDialog::finished, this, [=](int result){
+            // if(result == QDialog::Accepted)
+            // {
+            //     // 可以在这里处理保存操作
+            // }
 
-    // 绑定表格
-    m_bindingTable = new QTableWidget(this);
-    m_bindingTable->setColumnCount(3);
-    m_bindingTable->setHorizontalHeaderLabels({tr("启用"), tr("关节名"), tr("OPC UA节点ID")});
-    m_bindingTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
-    m_bindingTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    m_bindingTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-    m_bindingTable->setColumnWidth(0, 60);
-    m_bindingTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_bindingTable->setSelectionMode(QAbstractItemView::SingleSelection);
-    connect(m_bindingTable, &QTableWidget::cellChanged, this, &OpcuaWidget::onBindingCellChanged);
-    bindingLayout->addWidget(m_bindingTable);
+            // 执行一下保存
+            emit settingsChanged();
+        });
+        mBindingDialog->setWindowTitle(tr("变量绑定配置"));
+        mBindingDialog->resize(400, 800);
 
-    // 绑定操作按钮
-    QHBoxLayout* bindingButtonLayout = new QHBoxLayout();
-    m_addBindingButton = new QPushButton(tr("添加绑定"), this);
-    m_removeBindingButton = new QPushButton(tr("移除绑定"), this);
-    connect(m_addBindingButton, &QPushButton::clicked, this, &OpcuaWidget::onAddBindingClicked);
-    connect(m_removeBindingButton, &QPushButton::clicked, this, &OpcuaWidget::onRemoveBindingClicked);
-    bindingButtonLayout->addWidget(m_addBindingButton);
-    bindingButtonLayout->addWidget(m_removeBindingButton);
-    bindingButtonLayout->addStretch();
-    bindingLayout->addLayout(bindingButtonLayout);
+        // 变量绑定组
+        QVBoxLayout* bindingLayout = new QVBoxLayout(mBindingDialog);
 
-    mainLayout->addWidget(bindingGroup, 1);
+        // 绑定表格
+        m_bindingTable = new QTableWidget(this);
+        m_bindingTable->setColumnCount(3);
+        m_bindingTable->setHorizontalHeaderLabels({tr("启用"), tr("关节名"), tr("OPC UA节点ID")});
+        m_bindingTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+        m_bindingTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+        m_bindingTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+        m_bindingTable->setColumnWidth(0, 60);
+        m_bindingTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+        m_bindingTable->setSelectionMode(QAbstractItemView::SingleSelection);
+        connect(m_bindingTable, &QTableWidget::cellChanged, this, &OpcuaWidget::onBindingCellChanged);
+        bindingLayout->addWidget(m_bindingTable);
+
+        // 绑定操作按钮
+        QHBoxLayout* bindingButtonLayout = new QHBoxLayout();
+        m_addBindingButton = new QPushButton(tr("添加绑定"), this);
+        m_removeBindingButton = new QPushButton(tr("移除绑定"), this);
+        connect(m_addBindingButton, &QPushButton::clicked, this, &OpcuaWidget::onAddBindingClicked);
+        connect(m_removeBindingButton, &QPushButton::clicked, this, &OpcuaWidget::onRemoveBindingClicked);
+        bindingButtonLayout->addWidget(m_addBindingButton);
+        bindingButtonLayout->addWidget(m_removeBindingButton);
+        bindingButtonLayout->addStretch();
+        bindingLayout->addLayout(bindingButtonLayout);
+
+        QPushButton *okButton = new QPushButton(tr("变量绑定"));
+        connect(okButton, &QPushButton::clicked, mBindingDialog, &QDialog::show);
+        mainLayout->addWidget(okButton);
+        mainLayout->addStretch();
+    }
+
+
 }
-
-// void OpcuaWidget::setRobotEntity(RobotEntity* robot)
-// {
-//     m_robotEntity = robot;
-// }
 
 void OpcuaWidget::setJointNames(const QStringList& jointNames)
 {
@@ -440,6 +455,7 @@ void OpcuaWidget::readOpcuaValues()
 
     QMap<QString, double> valMap;
     QList<BaseConnector::DataUnit> unitList;
+    QList<QString> jointNameList;
 
     QList<OpcuaBinding> bindings = getBindings();
     for (const auto& binding : bindings) {
@@ -460,10 +476,11 @@ void OpcuaWidget::readOpcuaValues()
         //     valMap.insert(binding.jointName, jointValue);
         // }
 
-        valMap.insert(binding.jointName, 0.0);
         BaseConnector::DataUnit unit;
         unit.path = binding.opcuaNodeId;
         unitList << unit;
+
+        jointNameList << binding.jointName;
     }
 
     if(unitList.length() > 0)
@@ -472,10 +489,9 @@ void OpcuaWidget::readOpcuaValues()
         int ret = m_connector->readValueList(unitList);
         if(ret == 0)
         {
-            QStringList nameList = valMap.keys();
-            for(int i = 0; i < nameList.length(); i++)
+            for(int i = 0; i < jointNameList.length(); i++)
             {
-                QString jointName = nameList.at(i);
+                QString jointName = jointNameList.at(i);
 
                 double jointValue = unitList.at(i).value.toDouble();
                 // 取到的值要转成弧度值

@@ -164,6 +164,10 @@ void MainWindow::setupUI()
     
     // OPC UA通信面板
     m_opcuaWidget = new OpcuaWidget(tabWidget);
+    connect(m_opcuaWidget, &OpcuaWidget::settingsChanged, this, [this]() {
+        // 保存设置
+        saveSettings();
+    });
     tabWidget->addTab(m_opcuaWidget, tr("OPC UA通信"));
     
     // 连接OPC UA值变化信号到关节控制
