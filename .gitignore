@@ -41,6 +41,9 @@
 *.dwo
 
 .qtcreator
+.github
+.vscode
+.shared
 
 build/
 
