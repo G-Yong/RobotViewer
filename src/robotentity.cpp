@@ -70,12 +70,30 @@ void JointEntity::setAxesVisible(bool visible)
     }
 }
 
+void JointEntity::setAxesLength(float length)
+{
+    if (qFuzzyCompare(m_axesLength, length)) return;
+    m_axesLength = length;
+    updateAxesGeometry();
+}
+
+void JointEntity::updateAxesGeometry()
+{
+    // 删除旧的坐标轴实体
+    if (m_axesEntity) {
+        m_axesEntity->deleteLater();
+        m_axesEntity = nullptr;
+    }
+    // 重新创建
+    createAxes();
+}
+
 void JointEntity::createAxes()
 {
     m_axesEntity = new Qt3DCore::QEntity(this);
     m_axesEntity->setEnabled(m_axesVisible);
     
-    const float axisLength = 0.1f; // 关节坐标轴较短
+    const float axisLength = m_axesLength;
     
     // 为每个轴创建单独的线条实体，这样可以设置不同的颜色
     // X轴 - 红色
@@ -688,7 +706,17 @@ void RobotEntity::setTrajectoryEnabled(bool enabled)
 void RobotEntity::setJointAxesVisible(bool visible)
 {
     m_jointAxesVisible = visible;
+    
+    // 根据模型尺寸计算合适的坐标轴长度
+    float axisLength = 0.1f;  // 默认长度
+    if (visible && !m_jointEntities.isEmpty()) {
+        float modelSize = getModelSize();
+        // 坐标轴长度约为模型尺寸的 5%，但有上下限
+        axisLength = qBound(0.02f, modelSize * 0.05f, 0.5f);
+    }
+    
     for (auto jointEntity : m_jointEntities) {
+        jointEntity->setAxesLength(axisLength);
         jointEntity->setAxesVisible(visible);
     }
 }

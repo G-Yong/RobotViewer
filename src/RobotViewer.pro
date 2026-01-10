@@ -1,4 +1,6 @@
 QT       += core gui xml
+QT       += 3dcore 3drender 3dinput 3dextras 3dlogic
+QT       += qml quick quickcontrols2
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -9,48 +11,52 @@ CONFIG += c++17
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+# 核心源文件 (两种UI共用)
 SOURCES += \
-    main.cpp \
-    mainwindow.cpp \
     urdfparser.cpp \
     assimpmodelloader.cpp \
     robotentity.cpp \
     robotscene.cpp \
-    orbitcameracontroller.cpp \
     trajectoryentity.cpp \
-    jointcontrolwidget.cpp \
-    opcuawidget.cpp \
-    settingsmanager.cpp
+    settingsmanager.cpp \
+    orbitcameracontroller.cpp
 
 HEADERS += \
-    mainwindow.h \
+    commontypes.h \
     urdfparser.h \
     assimpmodelloader.h \
     robotentity.h \
     robotscene.h \
-    orbitcameracontroller.h \
     trajectoryentity.h \
-    jointcontrolwidget.h \
-    opcuawidget.h \
-    settingsmanager.h
+    settingsmanager.h \
+    orbitcameracontroller.h
 
-FORMS += \
-    mainwindow.ui
+
+    SOURCES += \
+        main.cpp \
+        robotbridge.cpp
+    
+    HEADERS += \
+        robotbridge.h
+    
+    RESOURCES += \
+        resources.qrc
+
 
 # Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
-
-
-QT += 3dcore 3drender 3dinput 3dextras
-QT += widgets
 
 win32 {
     # assimp动态库及其依赖的动态库所在目录
     INCLUDEPATH += $$PWD/../../../Assimp/include
     LIBS += -L$$PWD/../../../Assimp/lib -lassimp-vc142-mt
     LIBS += -L$$PWD/../../../Assimp/bin
+
+
+    # 这是使用vcpkg安装assimp后的配置
+    INCLUDEPATH += F:/reposities/vcpkg/installed/x64-windows/include
+    LIBS += -LF:/reposities/vcpkg/installed/x64-windows/lib -lassimp-vc142-mt
+    LIBS += -LF:/reposities/vcpkg/installed\x64-windows/bin
+
 }
 win32: LIBS += -lws2_32 -liphlpapi
 win32: DEFINES += WIN32_LEAN_AND_MEAN

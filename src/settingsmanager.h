@@ -7,7 +7,7 @@
 #include <QStringList>
 #include <QSettings>
 #include <QList>
-#include "opcuawidget.h"
+#include "commontypes.h"
 
 /**
  * @brief 设置管理器

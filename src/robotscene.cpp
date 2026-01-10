@@ -1,6 +1,5 @@
 ﻿#include "robotscene.h"
 #include "robotentity.h"
-#include "orbitcameracontroller.h"
 #include "trajectoryentity.h"
 
 #include <Qt3DRender/QCamera>
@@ -8,7 +7,6 @@
 #include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QDirectionalLight>
 #include <Qt3DCore/QTransform>
-#include <Qt3DExtras/QForwardRenderer>
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DExtras/QCylinderMesh>
 #include <Qt3DExtras/QConeMesh>
@@ -18,61 +16,34 @@
 #include <Qt3DRender/QBuffer>
 #include <QQuaternion>
 #include <QDebug>
+#include <QtMath>
 
 RobotScene::RobotScene(QObject* parent)
     : QObject(parent)
 {
-    // // 设置 OpenGL 版本
-    // QSurfaceFormat format;
-    // format.setVersion(3, 3);  // 设置 OpenGL 3.3
-    // format.setProfile(QSurfaceFormat::CoreProfile);  // 使用 Core Profile
-    // format.setRenderableType(QSurfaceFormat::OpenGL);
-    // format.setDepthBufferSize(24);
-    // format.setSamples(4);  // 4x MSAA
-
-    // // 设置为全局默认
-    // QSurfaceFormat::setDefaultFormat(format);
-
-    // 默认Z轴朝上
-    setZUpEnabled(true);
 }
 
 RobotScene::~RobotScene()
 {
-    // Qt3DWindow和container会自动管理
+    // Entity 树会随着 QML Scene3D 销毁自动清理
+    // 但如果我们创建的 rootEntity 还没被挂载到 QML，需要手动清理
+    if (m_rootEntity && !m_rootEntity->parent()) {
+        delete m_rootEntity;
+        m_rootEntity = nullptr;
+    }
 }
 
 void RobotScene::initialize()
 {
-    // 创建3D视图
-    m_view = new Qt3DExtras::Qt3DWindow();
-    m_view->defaultFrameGraph()->setClearColor(QColor(64, 64, 64));
-    
-    // 创建Widget容器
-    m_container = QWidget::createWindowContainer(m_view);
-    m_container->setMinimumSize(400, 300);
-    m_container->setFocusPolicy(Qt::StrongFocus);
-
-    
-    // 创建根实体
+    // 创建根实体（稍后会被挂载到 QML Scene3D 的 sceneRoot 下）
     m_rootEntity = new Qt3DCore::QEntity();
+    m_rootEntity->setObjectName("CppSceneRoot");
 
     // 创建可整体旋转的世界根，用于切换Y-up / Z-up
     m_worldEntity = new Qt3DCore::QEntity(m_rootEntity);
+    m_worldEntity->setObjectName("WorldEntity");
     m_sceneTransform = new Qt3DCore::QTransform(m_worldEntity);
     m_worldEntity->addComponent(m_sceneTransform);
-    setZUpEnabled(false); // 默认保持Y轴朝上
-    
-    // 设置相机
-    m_camera = m_view->camera();
-    m_camera->lens()->setPerspectiveProjection(45.0f, 16.0f / 9.0f, 0.01f, 1000.0f);
-    m_camera->setPosition(QVector3D(3, 3, 3));
-    m_camera->setViewCenter(QVector3D(0, 0, 0));
-    m_camera->setUpVector(QVector3D(0, 1, 0));
-    
-    // 创建相机控制器
-    m_cameraController = new OrbitCameraController(m_rootEntity);
-    m_cameraController->setCamera(m_camera);
     
     // 创建场景元素
     createLights();
@@ -89,22 +60,45 @@ void RobotScene::initialize()
     
     connect(m_robotEntity, &RobotEntity::robotLoaded, this, &RobotScene::robotLoaded);
     
-    // 设置根实体
-    m_view->setRootEntity(m_rootEntity);
+    // 默认保持Y轴朝上
+    setZUpEnabled(false);
+    
+    qDebug() << "RobotScene: Entity树创建完成，等待连接到QML Scene3D";
+}
+
+void RobotScene::setSceneRoot(Qt3DCore::QEntity* sceneRoot)
+{
+    if (!sceneRoot) {
+        qWarning() << "RobotScene::setSceneRoot: sceneRoot is null";
+        return;
+    }
+    
+    if (!m_rootEntity) {
+        qWarning() << "RobotScene::setSceneRoot: m_rootEntity is null, call initialize() first";
+        return;
+    }
+    
+    // 将我们的根实体挂载到 QML 的 sceneRoot 下
+    m_rootEntity->setParent(sceneRoot);
+    qDebug() << "RobotScene: Entity树已连接到QML Scene3D";
 }
 
 void RobotScene::createLights()
 {
+    // 创建灯光容器
+    m_lightsEntity = new Qt3DCore::QEntity(m_worldEntity);
+    m_lightsEntity->setObjectName("LightsEntity");
+    
     // 主光源（定向光）
-    Qt3DCore::QEntity* lightEntity1 = new Qt3DCore::QEntity(m_worldEntity);
+    Qt3DCore::QEntity* lightEntity1 = new Qt3DCore::QEntity(m_lightsEntity);
     Qt3DRender::QDirectionalLight* directionalLight = new Qt3DRender::QDirectionalLight(lightEntity1);
     directionalLight->setColor(QColor(255, 255, 255));
-    directionalLight->setIntensity(0.8f);
+    directionalLight->setIntensity(0.5f);
     directionalLight->setWorldDirection(QVector3D(-1, -1, -1).normalized());
     lightEntity1->addComponent(directionalLight);
     
     // 辅助光源（定向光）
-    Qt3DCore::QEntity* lightEntity2 = new Qt3DCore::QEntity(m_worldEntity);
+    Qt3DCore::QEntity* lightEntity2 = new Qt3DCore::QEntity(m_lightsEntity);
     Qt3DRender::QDirectionalLight* fillLight = new Qt3DRender::QDirectionalLight(lightEntity2);
     fillLight->setColor(QColor(200, 200, 255));
     fillLight->setIntensity(0.3f);
@@ -112,7 +106,7 @@ void RobotScene::createLights()
     lightEntity2->addComponent(fillLight);
     
     // 点光源（提供额外照明）
-    Qt3DCore::QEntity* lightEntity3 = new Qt3DCore::QEntity(m_worldEntity);
+    Qt3DCore::QEntity* lightEntity3 = new Qt3DCore::QEntity(m_lightsEntity);
     Qt3DRender::QPointLight* pointLight = new Qt3DRender::QPointLight(lightEntity3);
     pointLight->setColor(QColor(255, 255, 255));
     pointLight->setIntensity(0.5f);
@@ -537,17 +531,41 @@ QMatrix4x4 RobotScene::getWorldMatrix(Qt3DCore::QEntity *entity) const
 
 void RobotScene::resetCamera()
 {
-    if (m_cameraController) {
-        m_cameraController->resetView();
-    }
+    // 相机控制已移至QML端，此函数保留用于信号发射
+    // 实际相机重置由 RobotBridge 发出信号通知 QML
 }
 
 void RobotScene::fitCameraToRobot()
 {
-    if (!m_cameraController || !m_robotEntity) return;
+    // 获取机器人包围盒信息
+    if (!m_robotEntity) return;
     
-    // 简单地设置一个默认的合适视角
-    // 如果需要更精确的适配，可以从模型获取包围盒信息
-    m_cameraController->setDefaultView(QVector3D(-1.5, 1.8, 0.5), QVector3D(0, 0.5, 0));
-    m_cameraController->resetView();
+    QVector3D minPoint, maxPoint;
+    m_robotEntity->getBoundingBox(minPoint, maxPoint);
+    
+    // 计算中心点和尺寸
+    QVector3D center = (minPoint + maxPoint) * 0.5f;
+    QVector3D size = maxPoint - minPoint;
+    float maxDim = qMax(qMax(size.x(), size.y()), size.z());
+    
+    // 如果启用了自动缩放，需要考虑缩放因子
+    float scale = m_robotEntity->getScale();
+    center *= scale;
+    maxDim *= scale;
+    
+    // 计算合适的相机距离（使模型占据视野的约60%）
+    float distance = maxDim * 2.0f;
+    
+    // 计算相机位置（45度角观察）
+    float angle = qDegreesToRadians(45.0f);
+    float elevation = qDegreesToRadians(30.0f);
+    
+    QVector3D cameraPos;
+    cameraPos.setX(center.x() + distance * qCos(elevation) * qSin(angle));
+    cameraPos.setY(center.y() + distance * qSin(elevation));
+    cameraPos.setZ(center.z() + distance * qCos(elevation) * qCos(angle));
+    
+    // 通过 RobotBridge 发送信号到 QML
+    // 这里我们直接将计算结果返回给调用者（RobotBridge会处理）
+    emit fitCameraRequested(center, cameraPos);
 }

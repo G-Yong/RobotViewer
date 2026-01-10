@@ -1,13 +1,14 @@
 ﻿#ifndef ROBOTSCENE_H
 #define ROBOTSCENE_H
 
+#include <QObject>
 #include <Qt3DCore/QEntity>
-#include <Qt3DRender/QCamera>
-#include <Qt3DExtras/Qt3DWindow>
-#include <QWidget>
+#include <Qt3DCore/QTransform>
+#include <QMatrix4x4>
+#include <QMap>
+#include <QColor>
 
 class RobotEntity;
-class OrbitCameraController;
 class TrajectoryEntity;
 
 /**
@@ -23,29 +24,25 @@ public:
     ~RobotScene();
     
     /**
-     * @brief 初始化场景
+     * @brief 初始化场景（创建Entity树，不创建窗口）
      */
     void initialize();
     
     /**
-     * @brief 获取3D窗口的Widget容器
+     * @brief 设置QML Scene3D的根实体作为父节点
+     * @param sceneRoot QML中Scene3D的根Entity
      */
-    QWidget* container() const { return m_container; }
+    void setSceneRoot(Qt3DCore::QEntity* sceneRoot);
+    
+    /**
+     * @brief 获取世界实体（包含机器人、网格、坐标轴等）
+     */
+    Qt3DCore::QEntity* worldEntity() const { return m_worldEntity; }
     
     /**
      * @brief 获取根实体
      */
     Qt3DCore::QEntity* rootEntity() const { return m_rootEntity; }
-    
-    /**
-     * @brief 获取相机
-     */
-    Qt3DRender::QCamera* camera() const { return m_camera; }
-    
-    /**
-     * @brief 获取相机控制器
-     */
-    OrbitCameraController* cameraController() const { return m_cameraController; }
     
     /**
      * @brief 获取机器人实体
@@ -160,20 +157,17 @@ public:
 signals:
     void robotLoaded();
     void loadError(const QString& error);
+    void fitCameraRequested(const QVector3D& center, const QVector3D& position);
     
 private:
     void createGrid();
     void createAxes();
     void createLights();
-    void setupRenderSettings();
     
-    Qt3DExtras::Qt3DWindow* m_view = nullptr;
-    QWidget* m_container = nullptr;
-    Qt3DCore::QEntity* m_rootEntity = nullptr;
-    Qt3DCore::QEntity* m_worldEntity = nullptr; // 受坐标系切换控制的场景节点
+    Qt3DCore::QEntity* m_rootEntity = nullptr;       // 场景根节点（将挂载到QML Scene3D）
+    Qt3DCore::QEntity* m_worldEntity = nullptr;      // 世界节点（受坐标系切换控制）
+    Qt3DCore::QEntity* m_lightsEntity = nullptr;     // 灯光容器
     Qt3DCore::QTransform* m_sceneTransform = nullptr; // 控制Y-up / Z-up
-    Qt3DRender::QCamera* m_camera = nullptr;
-    OrbitCameraController* m_cameraController = nullptr;
     
     RobotEntity* m_robotEntity = nullptr;
     TrajectoryEntity* m_trajectoryEntity = nullptr;  // 单个轨迹（向后兼容）

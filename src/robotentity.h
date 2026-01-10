@@ -59,17 +59,22 @@ public:
     void setAxesVisible(bool visible);
     bool isAxesVisible() const { return m_axesVisible; }
     
+    void setAxesLength(float length);
+    float axesLength() const { return m_axesLength; }
+    
 signals:
     void jointValueChanged(const QString& jointName, double value);
     
 private:
     void createAxes();
+    void updateAxesGeometry();
     
     std::shared_ptr<URDFJoint> m_joint;
     Qt3DCore::QTransform* m_transform;
     double m_jointValue = 0;
     Qt3DCore::QEntity* m_axesEntity = nullptr;
     bool m_axesVisible = false;
+    float m_axesLength = 0.1f;
 };
 
 /**

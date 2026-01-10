@@ -1,0 +1,12 @@
+﻿module panels
+
+// QML面板模块定义
+
+SettingsPanel 1.0 SettingsPanel.qml
+ViewOptionsPanel 1.0 ViewOptionsPanel.qml
+JointControlPanel 1.0 JointControlPanel.qml
+OpcuaPanel 1.0 OpcuaPanel.qml
+GameTabButton 1.0 GameTabButton.qml
+SettingsGroup 1.0 SettingsGroup.qml
+JointControlItem 1.0 JointControlItem.qml
+BindingItem 1.0 BindingItem.qml
