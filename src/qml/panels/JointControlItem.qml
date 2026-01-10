@@ -17,7 +17,7 @@ Item {
     
     signal valueChanged(string name, real value)
     
-    height: 100
+    height: 110
     
     // 预定义颜色
     property var jointColors: [
@@ -268,7 +268,7 @@ Item {
             
             Text {
                 text: root.jointMin.toFixed(0) + (root.jointType === "P" ? "m" : "°")
-                color: "#60ffffff"
+                color: "#a0ffffff"
                 font.pixelSize: 10
             }
 
@@ -276,7 +276,7 @@ Item {
 
             Text {
                 text: root.jointMax.toFixed(0) + (root.jointType === "P" ? "m" : "°")
-                color: "#60ffffff"
+                color: "#a0ffffff"
                 font.pixelSize: 10
             }
         }

@@ -45,9 +45,9 @@ Item {
         anchors.fill: parent
         
         layer.enabled: true
-        layer.effect: FastBlur {
-            radius: 0
-        }
+        // layer.effect: FastBlur {
+        //     radius: 0
+        // }
         
         // 多层渐变模拟光线散射
         Rectangle {

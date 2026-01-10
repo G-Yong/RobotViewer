@@ -11,9 +11,6 @@ CONFIG += c++17
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-# 定义使用QML UI (注释掉此行可切换回传统Widget UI)
-DEFINES += USE_QML_UI
-
 # 核心源文件 (两种UI共用)
 SOURCES += \
     urdfparser.cpp \
@@ -34,12 +31,9 @@ HEADERS += \
     settingsmanager.h \
     orbitcameracontroller.h
 
-# QML UI相关文件
-contains(DEFINES, USE_QML_UI) {
-    message("Building with QML UI (3A Game Style)")
-    
+
     SOURCES += \
-        main_qml.cpp \
+        main.cpp \
         robotbridge.cpp
     
     HEADERS += \
@@ -47,28 +41,7 @@ contains(DEFINES, USE_QML_UI) {
     
     RESOURCES += \
         resources.qrc
-} else {
-    message("Building with Traditional Widget UI")
-    
-    QT += widgets
-    
-    # 传统Widget UI需要的额外文件
-    SOURCES += \
-        main.cpp \
-        mainwindow.cpp \
-        jointcontrolwidget.cpp \
-        opcuawidget.cpp
 
-    
-    HEADERS += \
-        mainwindow.h \
-        jointcontrolwidget.h \
-        opcuawidget.h
-
-    
-    FORMS += \
-        mainwindow.ui
-}
 
 # Default rules for deployment.
 
