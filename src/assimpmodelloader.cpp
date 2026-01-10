@@ -1,4 +1,4 @@
-#include "assimpmodelloader.h"
+﻿#include "assimpmodelloader.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -74,9 +74,9 @@ Qt3DCore::QEntity* AssimpModelLoader::loadModel(const QString& filename,
     // 递归处理节点
     processNode(scene->mRootNode, scene, rootEntity, color);
     
-    qDebug() << "Model loaded:" << filename;
-    qDebug() << "  Meshes:" << scene->mNumMeshes;
-    qDebug() << "  Bounding box:" << m_minPoint << "-" << m_maxPoint;
+    // qDebug() << "Model loaded:" << filename;
+    // qDebug() << "  Meshes:" << scene->mNumMeshes;
+    // qDebug() << "  Bounding box:" << m_minPoint << "-" << m_maxPoint;
     
     return rootEntity;
 }

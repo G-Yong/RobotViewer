@@ -30,6 +30,11 @@ OrbitCameraController::OrbitCameraController(Qt3DCore::QEntity* parent)
     m_keyboardHandler->setSourceDevice(m_keyboardDevice);
     m_keyboardHandler->setFocus(true);
     
+    connect(m_keyboardHandler, &Qt3DInput::QKeyboardHandler::pressed,
+            this, &OrbitCameraController::onKeyPressed);
+    connect(m_keyboardHandler, &Qt3DInput::QKeyboardHandler::released,
+            this, &OrbitCameraController::onKeyReleased);
+    
     addComponent(m_keyboardHandler);
 }
 
@@ -44,18 +49,14 @@ void OrbitCameraController::setCamera(Qt3DRender::QCamera* camera)
     m_camera = camera;
     
     if (m_camera) {
-        // 从相机当前位置计算轨道参数
-        QVector3D cameraPos = m_camera->position();
-        QVector3D viewCenter = m_camera->viewCenter();
-        QVector3D diff = cameraPos - viewCenter;
+        // 连接相机属性变化信号，以便在相机位置改变时同步轨道参数
+        connect(m_camera, &Qt3DRender::QCamera::positionChanged,
+                this, &OrbitCameraController::onCameraChanged, Qt::UniqueConnection);
+        connect(m_camera, &Qt3DRender::QCamera::viewCenterChanged,
+                this, &OrbitCameraController::onCameraChanged, Qt::UniqueConnection);
         
-        m_lookAtCenter = viewCenter;
-        m_distance = diff.length();
-        
-        if (m_distance > 0.001f) {
-            m_elevation = qRadiansToDegrees(qAsin(diff.y() / m_distance));
-            m_azimuth = qRadiansToDegrees(qAtan2(diff.x(), diff.z()));
-        }
+        // 初始同步
+        syncFromCamera();
     }
     
     emit cameraChanged();
@@ -182,19 +183,14 @@ void OrbitCameraController::onMouseMoved(Qt3DInput::QMouseEvent* event)
     QPoint delta = currentPos - m_lastMousePos;
     m_lastMousePos = currentPos;
     
-    // 更新Shift键状态
-    m_shiftPressed = (event->modifiers() & Qt::ShiftModifier);
-    
     if (m_leftButtonPressed) {
         if (m_shiftPressed) {
             // Shift + 左键：平移（备用方式）
             pan(delta.x(), delta.y());
         } else {
-                // 左键：旋转
-           rotate(delta.x(), delta.y());
+            // 左键：旋转
+            rotate(delta.x(), delta.y());
         }
-
-
     } else if (m_middleButtonPressed) {
         // 中键：平移
         pan(delta.x(), delta.y());
@@ -209,10 +205,18 @@ void OrbitCameraController::onMouseWheel(Qt3DInput::QWheelEvent* event)
     zoom(event->angleDelta().y());
 }
 
-void OrbitCameraController::onKeyPressed(Qt3DInput::QKeyboardHandler* handler)
+void OrbitCameraController::onKeyPressed(Qt3DInput::QKeyEvent* event)
 {
-    Q_UNUSED(handler)
-    // 可以在这里添加键盘快捷键支持
+    if (event->key() == Qt::Key_Shift) {
+        m_shiftPressed = true;
+    }
+}
+
+void OrbitCameraController::onKeyReleased(Qt3DInput::QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Shift) {
+        m_shiftPressed = false;
+    }
 }
 
 void OrbitCameraController::rotate(float dx, float dy)
@@ -267,6 +271,8 @@ void OrbitCameraController::updateCameraPosition()
 {
     if (!m_camera) return;
     
+    m_updatingCamera = true;  // 防止循环更新
+    
     // 从球坐标转换到笛卡尔坐标
     float azimuthRad = qDegreesToRadians(m_azimuth);
     float elevationRad = qDegreesToRadians(m_elevation);
@@ -280,4 +286,29 @@ void OrbitCameraController::updateCameraPosition()
     m_camera->setPosition(newPosition);
     m_camera->setViewCenter(m_lookAtCenter);
     m_camera->setUpVector(QVector3D(0, 1, 0));
+    
+    m_updatingCamera = false;
+}
+
+void OrbitCameraController::syncFromCamera()
+{
+    if (!m_camera || m_updatingCamera) return;
+    
+    // 从相机当前位置计算轨道参数
+    QVector3D cameraPos = m_camera->position();
+    QVector3D viewCenter = m_camera->viewCenter();
+    QVector3D diff = cameraPos - viewCenter;
+    
+    m_lookAtCenter = viewCenter;
+    m_distance = diff.length();
+    
+    if (m_distance > 0.001f) {
+        m_elevation = qRadiansToDegrees(qAsin(qBound(-1.0f, diff.y() / m_distance, 1.0f)));
+        m_azimuth = qRadiansToDegrees(qAtan2(diff.x(), diff.z()));
+    }
+}
+
+void OrbitCameraController::onCameraChanged()
+{
+    syncFromCamera();
 }

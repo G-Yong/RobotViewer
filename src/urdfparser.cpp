@@ -563,7 +563,7 @@ QString URDFParser::expandXacroMacros(const QString& value) const
         }
     }
     
-    qDebug() << "value:" << value << result;
+    // qDebug() << "value:" << value << result;
 
     return result;
 }

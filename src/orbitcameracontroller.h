@@ -7,6 +7,7 @@
 #include <Qt3DInput/QMouseHandler>
 #include <Qt3DInput/QKeyboardDevice>
 #include <Qt3DInput/QKeyboardHandler>
+#include <Qt3DInput/QKeyEvent>
 #include <QPoint>
 #include <QVector3D>
 
@@ -57,6 +58,11 @@ public:
      */
     void fitToBoundingBox(const QVector3D& minPoint, const QVector3D& maxPoint);
     
+    /**
+     * @brief 从相机当前状态同步轨道参数（供QML调用）
+     */
+    Q_INVOKABLE void syncFromCamera();
+    
 signals:
     void cameraChanged();
     void rotationSpeedChanged();
@@ -69,7 +75,9 @@ private slots:
     void onMouseReleased(Qt3DInput::QMouseEvent* event);
     void onMouseMoved(Qt3DInput::QMouseEvent* event);
     void onMouseWheel(Qt3DInput::QWheelEvent* event);
-    void onKeyPressed(Qt3DInput::QKeyboardHandler* handler);
+    void onKeyPressed(Qt3DInput::QKeyEvent* event);
+    void onKeyReleased(Qt3DInput::QKeyEvent* event);
+    void onCameraChanged();
     
 private:
     void updateCameraPosition();
@@ -100,6 +108,7 @@ private:
     bool m_middleButtonPressed = false;
     bool m_rightButtonPressed = false;
     bool m_shiftPressed = false;
+    bool m_updatingCamera = false;  // 防止循环更新
     
     // 默认视角
     QVector3D m_defaultPosition;

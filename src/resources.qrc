@@ -1,0 +1,37 @@
+<RCC>
+    <qresource prefix="/">
+        <!-- QML文件 -->
+        <file>qml/main.qml</file>
+        <file>qml/Scene3DView.qml</file>
+        
+        <!-- 组件 -->
+        <file>qml/components/qmldir</file>
+        <file>qml/components/GlassPanel.qml</file>
+        <file>qml/components/GlassButton.qml</file>
+        <file>qml/components/GlassToggle.qml</file>
+        <file>qml/components/GlassSlider.qml</file>
+        <file>qml/components/LoadingOverlay.qml</file>
+        <file>qml/components/MessagePopup.qml</file>
+        <file>qml/components/TopHUD.qml</file>
+        <file>qml/components/BottomStatusBar.qml</file>
+        <file>qml/components/JointOverlay.qml</file>
+        <file>qml/components/CoordinateDisplay.qml</file>
+        <file>qml/components/JointInfoItem.qml</file>
+        
+        <!-- 面板 -->
+        <file>qml/panels/qmldir</file>
+        <file>qml/panels/SettingsPanel.qml</file>
+        <file>qml/panels/ViewOptionsPanel.qml</file>
+        <file>qml/panels/JointControlPanel.qml</file>
+        <file>qml/panels/OpcuaPanel.qml</file>
+        <file>qml/panels/GameTabButton.qml</file>
+        <file>qml/panels/SettingsGroup.qml</file>
+        <file>qml/panels/JointControlItem.qml</file>
+        <file>qml/panels/BindingItem.qml</file>
+        
+        <!-- 图标 -->
+        <file>icons/app_icon.png</file>
+        <file>icons/eye_on.svg</file>
+        <file>icons/eye_off.svg</file>
+    </qresource>
+</RCC>

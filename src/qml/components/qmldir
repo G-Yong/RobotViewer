@@ -1,0 +1,14 @@
+﻿module components
+
+// QML组件模块定义
+GlassPanel 1.0 GlassPanel.qml
+GlassButton 1.0 GlassButton.qml
+GlassToggle 1.0 GlassToggle.qml
+GlassSlider 1.0 GlassSlider.qml
+LoadingOverlay 1.0 LoadingOverlay.qml
+MessagePopup 1.0 MessagePopup.qml
+TopHUD 1.0 TopHUD.qml
+BottomStatusBar 1.0 BottomStatusBar.qml
+JointOverlay 1.0 JointOverlay.qml
+CoordinateDisplay 1.0 CoordinateDisplay.qml
+JointInfoItem 1.0 JointInfoItem.qml

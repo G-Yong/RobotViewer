@@ -14,17 +14,10 @@
 #include <QMap>
 #include <memory>
 
+#include "commontypes.h"
+
 class OPCUAConnector;
 class RobotEntity;
-
-/**
- * @brief OPC UA变量绑定项
- */
-struct OpcuaBinding {
-    QString jointName;      // 关节名称
-    QString opcuaNodeId;    // OPC UA节点ID
-    bool enabled = true;    // 是否启用
-};
 
 /**
  * @brief OPC UA通讯控制面板
