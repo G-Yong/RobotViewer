@@ -10,6 +10,9 @@
 #include <Qt3DCore/QEntity>
 
 #include "commontypes.h"
+#include "viewoptions.h"
+#include "opcuabindingmodel.h"
+#include "endeffectorconfigmodel.h"
 
 #pragma execution_character_set("utf-8")
 
@@ -46,6 +49,10 @@ class RobotBridge : public QObject
     // 关节信息列表
     Q_PROPERTY(QVariantList jointInfoList READ jointInfoList NOTIFY jointInfoListChanged)
     Q_PROPERTY(QStringList jointNames READ jointNames NOTIFY jointNamesChanged)
+    
+    // ???????
+    Q_PROPERTY(QStringList linkNames READ linkNames NOTIFY linkNamesChanged)
+    Q_PROPERTY(QVariantList endEffectorConfigs READ endEffectorConfigs NOTIFY endEffectorConfigsChanged)
     
     // 视图选项
     Q_PROPERTY(bool showGrid READ showGrid WRITE setShowGrid NOTIFY showGridChanged)
@@ -95,15 +102,19 @@ public:
     QVariantList jointInfoList() const { return m_jointInfoList; }
     QStringList jointNames() const { return m_jointNames; }
     
+    // 末端执行器配置
+    QStringList linkNames() const { return m_linkNames; }
+    QVariantList endEffectorConfigs() const { return m_endEffectorConfigs.toVariantList(); }
+    
     // 视图选项 Getters
-    bool showGrid() const { return m_showGrid; }
-    bool showAxes() const { return m_showAxes; }
-    bool showJointAxes() const { return m_showJointAxes; }
-    bool coloredLinks() const { return m_coloredLinks; }
-    bool zUpEnabled() const { return m_zUpEnabled; }
-    bool autoScaleEnabled() const { return m_autoScaleEnabled; }
-    bool showTrajectory() const { return m_showTrajectory; }
-    double trajectoryLifetime() const { return m_trajectoryLifetime; }
+    bool showGrid() const { return m_viewOptions.state().showGrid; }
+    bool showAxes() const { return m_viewOptions.state().showAxes; }
+    bool showJointAxes() const { return m_viewOptions.state().showJointAxes; }
+    bool coloredLinks() const { return m_viewOptions.state().coloredLinks; }
+    bool zUpEnabled() const { return m_viewOptions.state().zUpEnabled; }
+    bool autoScaleEnabled() const { return m_viewOptions.state().autoScaleEnabled; }
+    bool showTrajectory() const { return m_viewOptions.state().showTrajectory; }
+    double trajectoryLifetime() const { return m_viewOptions.state().trajectoryLifetime; }
     
     // 视图选项 Setters
     void setShowGrid(bool show);
@@ -122,7 +133,7 @@ public:
     int opcuaNamespace() const { return m_opcuaNamespace; }
     bool opcuaConnected() const { return m_opcuaConnected; }
     bool opcuaSampling() const { return m_opcuaSampling; }
-    QVariantList opcuaBindings() const { return m_opcuaBindings; }
+    QVariantList opcuaBindings() const { return m_opcuaBindings.toVariantList(); }
     
     // OPC UA Setters
     void setOpcuaServerUrl(const QString& url);
@@ -147,7 +158,14 @@ public slots:
     void resetAllJoints();
     
     // 末端执行器配置
-    void configureEndEffectors();
+    Q_INVOKABLE void addEndEffectorConfig(const QString& linkName, 
+                                          const QString& displayName = QString(),
+                                          const QString& colorHex = QString());
+    Q_INVOKABLE void removeEndEffectorConfig(int index);
+    Q_INVOKABLE void updateEndEffectorConfig(int index, const QString& linkName,
+                                              const QString& displayName,
+                                              const QString& colorHex, bool enabled);
+    Q_INVOKABLE void applyEndEffectorConfigs();
     
     // OPC UA 操作
     void opcuaConnect();
@@ -169,6 +187,10 @@ signals:
     void jointInfoListChanged();
     void jointNamesChanged();
     void jointValueUpdated(const QString& jointName, double value);  // 单个关节值更新
+    
+    // 末端执行器信号
+    void linkNamesChanged();
+    void endEffectorConfigsChanged();
     
     // 视图选项信号
     void showGridChanged();
@@ -209,6 +231,8 @@ private:
     void loadSettings();
     void saveSettings();
     void setupConnections();
+    void updateLinkNames();
+    RobotEntity* robot() const;
     
     // 场景
     RobotScene* m_scene = nullptr;
@@ -227,15 +251,12 @@ private:
     QVariantList m_jointInfoList;
     QStringList m_jointNames;
     
+    // 末端执行器配置
+    QStringList m_linkNames;
+    EndEffectorConfigModel m_endEffectorConfigs;
+    
     // 视图选项
-    bool m_showGrid = true;
-    bool m_showAxes = true;
-    bool m_showJointAxes = false;
-    bool m_coloredLinks = false;
-    bool m_zUpEnabled = false;
-    bool m_autoScaleEnabled = true;
-    bool m_showTrajectory = true;
-    double m_trajectoryLifetime = 2.0;
+    ViewOptions m_viewOptions;
     
     // OPC UA
     OPCUAConnector* m_opcuaConnector = nullptr;
@@ -246,7 +267,7 @@ private:
     int m_opcuaNamespace = 2;
     bool m_opcuaConnected = false;
     bool m_opcuaSampling = false;
-    QVariantList m_opcuaBindings;
+    OpcuaBindingModel m_opcuaBindings;
 };
 
 #endif // ROBOTBRIDGE_H

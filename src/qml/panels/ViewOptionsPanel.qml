@@ -124,7 +124,7 @@ ScrollView {
                     text: qsTr("配置末端执行器...")
                     height: 36
                     onClicked: {
-                        if (robotBridge) robotBridge.configureEndEffectors()
+                        endEffectorDialog.open()
                     }
                 }
             }
@@ -162,5 +162,12 @@ ScrollView {
         }
         
         Item { Layout.fillHeight: true }
+    }
+    
+    // 末端执行器配置对话框
+    EndEffectorDialog {
+        id: endEffectorDialog
+        robotBridge: root.robotBridge
+        parent: Overlay.overlay
     }
 }

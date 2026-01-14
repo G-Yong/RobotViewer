@@ -10,3 +10,5 @@ GameTabButton 1.0 GameTabButton.qml
 SettingsGroup 1.0 SettingsGroup.qml
 JointControlItem 1.0 JointControlItem.qml
 BindingItem 1.0 BindingItem.qml
+EndEffectorItem 1.0 EndEffectorItem.qml
+EndEffectorDialog 1.0 EndEffectorDialog.qml

@@ -3,6 +3,7 @@
 #include "robotentity.h"
 #include "settingsmanager.h"
 #include "communication/opcua/opcuaconnector.h"
+#include "viewoptions.h"
 
 #include <QFileDialog>
 #include <QTimer>
@@ -36,6 +37,7 @@ void RobotBridge::initialize()
     // 创建3D场景（只创建Entity树，不创建窗口）
     m_scene = new RobotScene(this);
     m_scene->initialize();
+    m_viewOptions.applyToScene(m_scene);
     
     // 创建OPC UA连接器
     m_opcuaConnector = new OPCUAConnector(this);
@@ -117,6 +119,7 @@ void RobotBridge::onRobotLoaded()
     emit robotLoadedChanged();
     
     updateJointInfoList();
+    updateLinkNames();
     
     auto robot = m_scene->robotEntity();
     if (robot) {
@@ -128,6 +131,9 @@ void RobotBridge::onRobotLoaded()
         connect(robot, &RobotEntity::jointValueChanged,
                 this, &RobotBridge::onJointValueChanged);
     }
+    
+    // 应用已保存的末端执行器配置
+    applyEndEffectorConfigs();
     
     emit showMessage(tr("机器人模型加载成功"), false);
 }
@@ -199,6 +205,7 @@ void RobotBridge::updateJointInfoList()
 
 void RobotBridge::onJointValueChanged(const QString& jointName, double value)
 {
+    qDebug() << "onJointValueChanged:" << jointName << value;
     // 更新关节信息列表中的值
     for (int i = 0; i < m_jointInfoList.size(); ++i) {
         QVariantMap info = m_jointInfoList[i].toMap();
@@ -212,7 +219,8 @@ void RobotBridge::onJointValueChanged(const QString& jointName, double value)
             }
             info["value"] = displayValue;
             m_jointInfoList[i] = info;
-            // 不发射 jointInfoListChanged，而是发射单个关节值更新信号
+            // 只发出单个关节更新信号，不重建UI
+            qDebug() << "  emitting jointValueUpdated:" << jointName << displayValue;
             emit jointValueUpdated(jointName, displayValue);
             break;
         }
@@ -244,7 +252,7 @@ void RobotBridge::fitCamera()
 // 关节控制
 void RobotBridge::setJointValue(const QString& jointName, double value)
 {
-    auto robot = m_scene ? m_scene->robotEntity() : nullptr;
+    auto robot = this->robot();
     if (!robot) return;
     
     // 查找关节类型来决定是否需要转换
@@ -266,7 +274,7 @@ void RobotBridge::setJointValue(const QString& jointName, double value)
 
 void RobotBridge::resetAllJoints()
 {
-    auto robot = m_scene ? m_scene->robotEntity() : nullptr;
+    auto robot = this->robot();
     if (!robot) return;
     
     QMap<QString, double> vals;
@@ -280,74 +288,124 @@ void RobotBridge::resetAllJoints()
 }
 
 // 末端执行器配置
-void RobotBridge::configureEndEffectors()
+void RobotBridge::updateLinkNames()
 {
-    // 这个功能需要弹出对话框，稍后实现
-    emit showMessage(tr("末端执行器配置功能开发中..."), false);
+    m_linkNames.clear();
+    
+    auto robot = this->robot();
+    if (!robot || !robot->getModel()) return;
+    
+    auto model = robot->getModel();
+    for (auto it = model->links.constBegin(); it != model->links.constEnd(); ++it) {
+        m_linkNames.append(it.key());
+    }
+    
+    m_linkNames.sort();
+    emit linkNamesChanged();
+}
+
+RobotEntity* RobotBridge::robot() const
+{
+    return m_scene ? m_scene->robotEntity() : nullptr;
+}
+
+void RobotBridge::addEndEffectorConfig(const QString& linkName,
+                                        const QString& displayName,
+                                        const QString& colorHex)
+{
+    QString error;
+    if (!m_endEffectorConfigs.addConfig(linkName, displayName, colorHex, &error)) {
+        emit showMessage(error, true);
+        return;
+    }
+    emit endEffectorConfigsChanged();
+}
+
+void RobotBridge::removeEndEffectorConfig(int index)
+{
+    m_endEffectorConfigs.removeConfig(index);
+    emit endEffectorConfigsChanged();
+    
+    // 立即应用更改
+    applyEndEffectorConfigs();
+}
+
+void RobotBridge::updateEndEffectorConfig(int index, const QString& linkName,
+                                           const QString& displayName,
+                                           const QString& colorHex, bool enabled)
+{
+    m_endEffectorConfigs.updateConfig(index, linkName, displayName, colorHex, enabled);
+    emit endEffectorConfigsChanged();
+}
+
+void RobotBridge::applyEndEffectorConfigs()
+{
+    if (!m_scene) return;
+    
+    // 清除现有的末端执行器轨迹
+    m_scene->clearEndEffectorTrajectories();
+    
+    // 添加配置中启用的末端执行器
+    for (const auto& config : m_endEffectorConfigs.rows()) {
+        if (!config.enabled) continue;
+        
+        QColor color(config.colorHex);
+        if (!color.isValid()) {
+            color = Qt::yellow;
+        }
+        
+        m_scene->addEndEffectorTrajectory(config.linkName, config.displayName, color);
+    }
+    
+    emit showMessage(tr("末端执行器配置已应用"), false);
 }
 
 // 视图选项 Setters
 void RobotBridge::setShowGrid(bool show)
 {
-    if (m_showGrid == show) return;
-    m_showGrid = show;
-    if (m_scene) m_scene->setGridVisible(show);
+    if (!m_viewOptions.setShowGrid(show, m_scene)) return;
     emit showGridChanged();
 }
 
 void RobotBridge::setShowAxes(bool show)
 {
-    if (m_showAxes == show) return;
-    m_showAxes = show;
-    if (m_scene) m_scene->setAxesVisible(show);
+    if (!m_viewOptions.setShowAxes(show, m_scene)) return;
     emit showAxesChanged();
 }
 
 void RobotBridge::setShowJointAxes(bool show)
 {
-    if (m_showJointAxes == show) return;
-    m_showJointAxes = show;
-    if (m_scene) m_scene->setJointAxesVisible(show);
+    if (!m_viewOptions.setShowJointAxes(show, m_scene)) return;
     emit showJointAxesChanged();
 }
 
 void RobotBridge::setColoredLinks(bool colored)
 {
-    if (m_coloredLinks == colored) return;
-    m_coloredLinks = colored;
-    if (m_scene) m_scene->setColoredLinksEnabled(colored);
+    if (!m_viewOptions.setColoredLinks(colored, m_scene)) return;
     emit coloredLinksChanged();
 }
 
 void RobotBridge::setZUpEnabled(bool enabled)
 {
-    if (m_zUpEnabled == enabled) return;
-    m_zUpEnabled = enabled;
-    if (m_scene) m_scene->setZUpEnabled(enabled);
+    if (!m_viewOptions.setZUpEnabled(enabled, m_scene)) return;
     emit zUpEnabledChanged();
 }
 
 void RobotBridge::setAutoScaleEnabled(bool enabled)
 {
-    if (m_autoScaleEnabled == enabled) return;
-    m_autoScaleEnabled = enabled;
-    if (m_scene) m_scene->setAutoScaleEnabled(enabled);
+    if (!m_viewOptions.setAutoScaleEnabled(enabled, m_scene)) return;
     emit autoScaleEnabledChanged();
 }
 
 void RobotBridge::setShowTrajectory(bool show)
 {
-    if (m_showTrajectory == show) return;
-    m_showTrajectory = show;
-    if (m_scene) m_scene->setTrajectoryVisible(show);
+    if (!m_viewOptions.setShowTrajectory(show, m_scene)) return;
     emit showTrajectoryChanged();
 }
 
 void RobotBridge::setTrajectoryLifetime(double seconds)
 {
-    if (qFuzzyCompare(m_trajectoryLifetime, seconds)) return;
-    m_trajectoryLifetime = seconds;
-    if (m_scene) m_scene->setTrajectoryLifetime(seconds);
+    if (!m_viewOptions.setTrajectoryLifetime(seconds, m_scene)) return;
     emit trajectoryLifetimeChanged();
 }
 
@@ -432,68 +490,63 @@ void RobotBridge::onSampleTimerTimeout()
 {
     if (!m_opcuaConnector || !m_opcuaConnected) return;
     
-    auto robot = m_scene ? m_scene->robotEntity() : nullptr;
+    auto robot = this->robot();
     if (!robot) return;
     
     QMap<QString, double> jointValues;
     
-    for (const QVariant& bindingVar : m_opcuaBindings) {
-        QVariantMap binding = bindingVar.toMap();
-        if (!binding["enabled"].toBool()) continue;
+    // qDebug() << "OPC UA sampling, bindings count:" << m_opcuaBindings.rows().length();
+    
+    for (const auto& binding : m_opcuaBindings.rows()) {
+        if (!binding.enabled) {
+            qDebug() << "  Binding disabled:" << binding.jointName;
+            continue;
+        }
         
-        QString jointName = binding["jointName"].toString();
-        QString nodeId = binding["nodeId"].toString();
+        const QString& jointName = binding.jointName;
+        const QString& nodeId = binding.nodeId;
         
-        if (jointName.isEmpty() || nodeId.isEmpty()) continue;
+        if (jointName.isEmpty() || nodeId.isEmpty()) {
+            qDebug() << "  Binding empty:" << jointName << nodeId;
+            continue;
+        }
         
-        // 构建完整节点ID
-        QString fullNodeId = QString("ns=%1;s=%2%3")
-                                .arg(m_opcuaNamespace)
-                                .arg(m_opcuaPrefix)
-                                .arg(nodeId);
-        
+        m_opcuaConnector->setNamespaceIndex(m_opcuaNamespace);
         QVariant var;
-        if (m_opcuaConnector->readValue(fullNodeId, var)) {
-            jointValues[jointName] = qDegreesToRadians(var.toDouble());
+        if (m_opcuaConnector->readValue(nodeId, var) == 0) {
+            double degValue = var.toDouble();
+            double radValue = qDegreesToRadians(degValue);
+            jointValues[jointName] = radValue;
+            // qDebug() << "  Read:" << nodeId << "=" << degValue << "deg (" << radValue << "rad)";
+        } else {
+            // qDebug() << "  Failed to read:" << nodeId;
         }
     }
-    
+
     if (!jointValues.isEmpty()) {
+        // setJointValues 会触发 jointValueChanged 信号
+        // jointValueChanged 信号会被 onJointValueChanged 处理
+        // onJointValueChanged 会发出 jointValueUpdated 信号给 QML
         robot->setJointValues(jointValues);
-        updateJointInfoList();
     }
 }
 
 void RobotBridge::addOpcuaBinding()
 {
-    QVariantMap binding;
-    binding["jointName"] = m_jointNames.isEmpty() ? "" : m_jointNames.first();
-    binding["nodeId"] = "";
-    binding["enabled"] = true;
-    
-    m_opcuaBindings.append(binding);
+    m_opcuaBindings.addBinding(m_jointNames);
     emit opcuaBindingsChanged();
 }
 
 void RobotBridge::removeOpcuaBinding(int index)
 {
-    if (index < 0 || index >= m_opcuaBindings.size()) return;
-    
-    m_opcuaBindings.removeAt(index);
+    m_opcuaBindings.removeBinding(index);
     emit opcuaBindingsChanged();
 }
 
 void RobotBridge::updateOpcuaBinding(int index, const QString& jointName, 
                                      const QString& nodeId, bool enabled)
 {
-    if (index < 0 || index >= m_opcuaBindings.size()) return;
-    
-    QVariantMap binding = m_opcuaBindings[index].toMap();
-    binding["jointName"] = jointName;
-    binding["nodeId"] = nodeId;
-    binding["enabled"] = enabled;
-    
-    m_opcuaBindings[index] = binding;
+    m_opcuaBindings.updateBinding(index, jointName, nodeId, enabled);
     emit opcuaBindingsChanged();
 }
 
@@ -516,23 +569,21 @@ void RobotBridge::loadSettings()
     setZUpEnabled(settings.getZUpEnabled());
     setAutoScaleEnabled(settings.getAutoScaleEnabled());
     setShowTrajectory(settings.getShowTrajectory());
+    setTrajectoryLifetime(settings.getTrajectoryLifetime());
     
     // 加载OPC UA设置
     setOpcuaServerUrl(settings.getOpcuaServerUrl());
     setOpcuaPrefix(settings.getOpcuaPrefix());
     setOpcuaSampleInterval(settings.getOpcuaSampleInterval());
+    setOpcuaNamespace(settings.getOpcuaNamespaceIndex());
     
     // 加载OPC UA绑定
-    auto bindings = settings.getOpcuaBindings();
-    m_opcuaBindings.clear();
-    for (const auto& binding : bindings) {
-        QVariantMap map;
-        map["jointName"] = binding.jointName;
-        map["nodeId"] = binding.opcuaNodeId;
-        map["enabled"] = binding.enabled;
-        m_opcuaBindings.append(map);
-    }
+    m_opcuaBindings.fromSettings(settings.getOpcuaBindings());
     emit opcuaBindingsChanged();
+    
+    // 加载末端执行器配置
+    m_endEffectorConfigs.fromSettings(settings.getEndEffectorConfigs());
+    emit endEffectorConfigsChanged();
 }
 
 void RobotBridge::saveSettings()
@@ -543,28 +594,17 @@ void RobotBridge::saveSettings()
     settings.setLastUrdfFile(m_lastUrdfPath);
     
     // 保存视图选项
-    settings.setShowGrid(m_showGrid);
-    settings.setShowAxes(m_showAxes);
-    settings.setShowJointAxes(m_showJointAxes);
-    settings.setColoredLinks(m_coloredLinks);
-    settings.setZUpEnabled(m_zUpEnabled);
-    settings.setAutoScaleEnabled(m_autoScaleEnabled);
-    settings.setShowTrajectory(m_showTrajectory);
+    m_viewOptions.saveToSettings(settings);
     
     // 保存OPC UA设置
     settings.setOpcuaServerUrl(m_opcuaServerUrl);
     settings.setOpcuaPrefix(m_opcuaPrefix);
     settings.setOpcuaSampleInterval(m_opcuaSampleInterval);
+    settings.setOpcuaNamespaceIndex(m_opcuaNamespace);
     
     // 保存OPC UA绑定
-    QList<OpcuaBinding> bindings;
-    for (const QVariant& bindingVar : m_opcuaBindings) {
-        QVariantMap map = bindingVar.toMap();
-        OpcuaBinding binding;
-        binding.jointName = map["jointName"].toString();
-        binding.opcuaNodeId = map["nodeId"].toString();
-        binding.enabled = map["enabled"].toBool();
-        bindings.append(binding);
-    }
-    settings.setOpcuaBindings(bindings);
+    settings.setOpcuaBindings(m_opcuaBindings.toSettings());
+    
+    // 保存末端执行器配置
+    settings.setEndEffectorConfigs(m_endEffectorConfigs.toSettings());
 }

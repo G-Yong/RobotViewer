@@ -7,10 +7,59 @@ import QtGraphicalEffects 1.15
 Item {
     id: root
     
-    property var joints: []  // 关节信息列表 [{name, value, min, max, type}]
+    property var robotBridge: null
     property color accentColor: "#00ff88"
     
     signal jointClicked(string jointName)
+    
+    // 使用 ListModel 来避免整体刷新
+    ListModel {
+        id: jointModel
+    }
+    
+    // 从 robotBridge 初始化/刷新整个列表（仅在加载模型时）
+    function refreshJointList() {
+        jointModel.clear()
+        if (!robotBridge) return
+        var joints = robotBridge.jointInfoList
+        for (var i = 0; i < joints.length; i++) {
+            jointModel.append({
+                "name": joints[i].name,
+                "value": joints[i].value,
+                "min": joints[i].min,
+                "max": joints[i].max,
+                "type": joints[i].type
+            })
+        }
+    }
+    
+    // 更新单个关节值（不刷新整个列表）
+    function updateJointValue(jointName, value) {
+        for (var i = 0; i < jointModel.count; i++) {
+            if (jointModel.get(i).name === jointName) {
+                jointModel.setProperty(i, "value", value)
+                break
+            }
+        }
+    }
+    
+    // 监听 robotBridge 信号
+    Connections {
+        target: robotBridge ? robotBridge : null
+        
+        function onJointInfoListChanged() {
+            refreshJointList()
+        }
+        
+        function onJointValueUpdated(jointName, value) {
+            updateJointValue(jointName, value)
+        }
+    }
+    
+    // 当 robotBridge 变化时刷新列表
+    onRobotBridgeChanged: {
+        if (robotBridge) refreshJointList()
+    }
     
     implicitWidth: jointList.width + 20
     implicitHeight: Math.min(jointList.height + 20, 500)
@@ -66,7 +115,7 @@ Item {
                 Text {
                     id: countText
                     anchors.centerIn: parent
-                    text: joints.length
+                    text: jointModel.count
                     color: accentColor
                     font.pixelSize: 10
                     font.weight: Font.Bold
@@ -113,16 +162,16 @@ Item {
             spacing: 4
             
             Repeater {
-                model: joints
+                model: jointModel
                 
                 JointInfoItem {
                     width: parent.width
                     jointIndex: index
-                    jointName: modelData.name
-                    jointValue: modelData.value
-                    jointMin: modelData.min
-                    jointMax: modelData.max
-                    jointType: modelData.type
+                    jointName: model.name
+                    jointValue: model.value
+                    jointMin: model.min
+                    jointMax: model.max
+                    jointType: model.type
                     
                     onClicked: root.jointClicked(jointName)
                 }
@@ -134,7 +183,7 @@ Item {
     Column {
         anchors.centerIn: parent
         spacing: 10
-        visible: joints.length === 0
+        visible: jointModel.count === 0
         
         Text {
             text: "⚙"

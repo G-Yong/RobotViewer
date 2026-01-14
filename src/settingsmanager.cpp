@@ -185,6 +185,37 @@ double SettingsManager::getTrajectoryLifetime() const
     return m_settings.value("View/TrajectoryLifetime", 2.0).toDouble();
 }
 
+void SettingsManager::setEndEffectorConfigs(const QList<EndEffectorConfig>& configs)
+{
+    m_settings.beginWriteArray("EndEffectors");
+    for (int i = 0; i < configs.size(); ++i) {
+        m_settings.setArrayIndex(i);
+        m_settings.setValue("LinkName", configs[i].linkName);
+        m_settings.setValue("DisplayName", configs[i].displayName);
+        m_settings.setValue("Color", configs[i].colorHex);
+        m_settings.setValue("Enabled", configs[i].enabled);
+    }
+    m_settings.endArray();
+    m_settings.sync();
+}
+
+QList<EndEffectorConfig> SettingsManager::getEndEffectorConfigs()
+{
+    QList<EndEffectorConfig> configs;
+    int size = m_settings.beginReadArray("EndEffectors");
+    for (int i = 0; i < size; ++i) {
+        m_settings.setArrayIndex(i);
+        EndEffectorConfig config;
+        config.linkName = m_settings.value("LinkName").toString();
+        config.displayName = m_settings.value("DisplayName").toString();
+        config.colorHex = m_settings.value("Color").toString();
+        config.enabled = m_settings.value("Enabled", true).toBool();
+        configs.append(config);
+    }
+    m_settings.endArray();
+    return configs;
+}
+
 void SettingsManager::setWindowGeometry(const QByteArray& geometry)
 {
     m_settings.setValue("Window/Geometry", geometry);

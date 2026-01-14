@@ -73,6 +73,12 @@ public:
     double getTrajectoryLifetime() const;
 
     /**
+     * @brief 保存/加载末端执行器配置
+     */
+    void setEndEffectorConfigs(const QList<EndEffectorConfig>& configs);
+    QList<EndEffectorConfig> getEndEffectorConfigs();
+
+    /**
      * @brief 保存/加载窗口几何信息
      */
     void setWindowGeometry(const QByteArray& geometry);

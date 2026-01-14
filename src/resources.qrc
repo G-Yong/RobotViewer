@@ -28,6 +28,8 @@
         <file>qml/panels/SettingsGroup.qml</file>
         <file>qml/panels/JointControlItem.qml</file>
         <file>qml/panels/BindingItem.qml</file>
+        <file>qml/panels/EndEffectorItem.qml</file>
+        <file>qml/panels/EndEffectorDialog.qml</file>
         
         <!-- 图标 -->
         <file>icons/app_icon.png</file>

@@ -53,8 +53,7 @@ Item {
     
     // 监听 robotBridge 信号
     Connections {
-        target: robotBridge
-        enabled: robotBridge !== null
+        target: robotBridge ? robotBridge : null
         
         function onJointInfoListChanged() {
             refreshJointList()
@@ -65,7 +64,8 @@ Item {
         }
     }
     
-    Component.onCompleted: {
+    // 当 robotBridge 变化时刷新列表
+    onRobotBridgeChanged: {
         if (robotBridge) refreshJointList()
     }
     

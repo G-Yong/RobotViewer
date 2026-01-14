@@ -69,8 +69,8 @@ ApplicationWindow {
         anchors.bottomMargin: 10
         z: 99
         
-        joints: robotBridge ? robotBridge.jointInfoList : []
-        visible: jointsPanelOpen && (robotBridge ? robotBridge.jointInfoList.length > 0 : false)
+        robotBridge: mainWindow.bridge  // 使用本地引用
+        visible: jointsPanelOpen && (robotBridge ? robotBridge.robotLoaded : false)
         
         onJointClicked: function(jointName) {
             settingsPanelOpen = true
