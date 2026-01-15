@@ -94,7 +94,7 @@ Item {
                 }
             }
             
-            // 滚轮缩放
+            // 滚轮/右键缩放
             Row {
                 spacing: 5
                 anchors.verticalCenter: parent.verticalCenter
@@ -116,7 +116,7 @@ Item {
                 }
                 
                 Text {
-                    text: "滚轮缩放"
+                    text: "滚轮/右键缩放"
                     color: "#80ffffff"
                     font.pixelSize: FontConfig.small
                     anchors.verticalCenter: parent.verticalCenter
@@ -147,7 +147,7 @@ Item {
                 }
                 
                 Text {
-                    text: "+拖动 平移"
+                    text: "+拖动/中键按住 平移"
                     color: "#80ffffff"
                     font.pixelSize: FontConfig.small
                     anchors.verticalCenter: parent.verticalCenter
