@@ -39,7 +39,7 @@ Item {
             anchors.centerIn: parent
             text: "❯"
             color: "#80ffffff"
-            font.pixelSize: 16
+            font.pixelSize: FontConfig.medium
             rotation: 0
         }
         
@@ -63,13 +63,13 @@ Item {
             Text {
                 text: "⚙"
                 color: "#00ff88"
-                font.pixelSize: 20
+                font.pixelSize: FontConfig.large
             }
             
             Text {
                 text: "SETTINGS"
                 color: "#ffffff"
-                font.pixelSize: 16
+                font.pixelSize: FontConfig.medium
                 font.weight: Font.Bold
                 font.letterSpacing: 2
             }

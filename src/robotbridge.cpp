@@ -73,7 +73,8 @@ void RobotBridge::setupConnections()
     // 场景信号连接
     connect(m_scene, &RobotScene::robotLoaded, this, &RobotBridge::onRobotLoaded);
     connect(m_scene, &RobotScene::loadError, this, &RobotBridge::onLoadError);
-    connect(m_scene, &RobotScene::fitCameraRequested, this, &RobotBridge::onFitCameraRequested);
+    // 信号直连：RobotScene::fitCameraRequested -> RobotBridge::fitCameraRequested
+    connect(m_scene, &RobotScene::fitCameraRequested, this, &RobotBridge::fitCameraRequested);
 }
 
 void RobotBridge::openURDF()
@@ -149,11 +150,6 @@ void RobotBridge::onLoadError(const QString& error)
     emit showMessage(error, true);
 }
 
-void RobotBridge::onFitCameraRequested(const QVector3D& center, const QVector3D& position)
-{
-    emit fitCameraRequested(center, position);
-}
-
 void RobotBridge::updateJointInfoList()
 {
     m_jointInfoList.clear();
@@ -205,7 +201,7 @@ void RobotBridge::updateJointInfoList()
 
 void RobotBridge::onJointValueChanged(const QString& jointName, double value)
 {
-    qDebug() << "onJointValueChanged:" << jointName << value;
+    // qDebug() << "onJointValueChanged:" << jointName << value;
     // 更新关节信息列表中的值
     for (int i = 0; i < m_jointInfoList.size(); ++i) {
         QVariantMap info = m_jointInfoList[i].toMap();
@@ -220,7 +216,7 @@ void RobotBridge::onJointValueChanged(const QString& jointName, double value)
             info["value"] = displayValue;
             m_jointInfoList[i] = info;
             // 只发出单个关节更新信号，不重建UI
-            qDebug() << "  emitting jointValueUpdated:" << jointName << displayValue;
+            // qDebug() << "  emitting jointValueUpdated:" << jointName << displayValue;
             emit jointValueUpdated(jointName, displayValue);
             break;
         }
@@ -236,9 +232,7 @@ void RobotBridge::onEndEffectorPositionChanged(const QVector3D& position)
 // 相机控制
 void RobotBridge::resetCamera()
 {
-    if (m_scene) {
-        m_scene->resetCamera();
-    }
+    // 直接发射信号通知QML端重置相机
     emit resetCameraRequested();
 }
 

@@ -1,10 +1,15 @@
 ﻿module components
 
 // QML组件模块定义
+
+// 全局字体配置单例
+singleton FontConfig 1.0 FontConfig.qml
+
 GlassPanel 1.0 GlassPanel.qml
 GlassButton 1.0 GlassButton.qml
 GlassToggle 1.0 GlassToggle.qml
 GlassSlider 1.0 GlassSlider.qml
+GlassComboBox 1.0 GlassComboBox.qml
 LoadingOverlay 1.0 LoadingOverlay.qml
 MessagePopup 1.0 MessagePopup.qml
 TopHUD 1.0 TopHUD.qml

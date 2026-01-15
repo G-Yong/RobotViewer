@@ -224,7 +224,6 @@ private slots:
     void onJointValueChanged(const QString& jointName, double value);
     void onEndEffectorPositionChanged(const QVector3D& position);
     void onSampleTimerTimeout();
-    void onFitCameraRequested(const QVector3D& center, const QVector3D& position);
     
 private:
     void updateJointInfoList();

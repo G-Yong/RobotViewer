@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "."
 
 // 单个关节信息条目
 Item {
@@ -66,7 +67,7 @@ Item {
                 Text {
                     text: (root.jointIndex + 1).toString().padStart(2, '0')
                     color: root.itemColor
-                    font.pixelSize: 12
+                    font.pixelSize: FontConfig.small
                     font.weight: Font.Bold
                     font.family: "Consolas"
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -75,7 +76,7 @@ Item {
                 Text {
                     text: "[" + root.jointType + "]"
                     color: Qt.rgba(root.itemColor.r, root.itemColor.g, root.itemColor.b, 0.7)
-                    font.pixelSize: 8
+                    font.pixelSize: FontConfig.tiny
                     font.weight: Font.Medium
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
@@ -92,7 +93,7 @@ Item {
             Text {
                 text: root.jointName
                 color: "#ffffff"
-                font.pixelSize: 11
+                font.pixelSize: FontConfig.small
                 font.weight: Font.Medium
                 elide: Text.ElideRight
                 width: parent.width
@@ -129,7 +130,7 @@ Item {
                 Text {
                     text: root.jointMin.toFixed(1) + (root.jointType === "P" ? "m" : "°")
                     color: "#40ffffff"
-                    font.pixelSize: 8
+                    font.pixelSize: FontConfig.tiny
                 }
                 
                 Item { 
@@ -147,7 +148,7 @@ Item {
                     id: maxLabelWidth
                     text: root.jointMax.toFixed(1) + (root.jointType === "P" ? "m" : "°")
                     color: "#40ffffff"
-                    font.pixelSize: 8
+                    font.pixelSize: FontConfig.tiny
                 }
             }
         }
@@ -160,7 +161,7 @@ Item {
             Text {
                 text: root.jointValue.toFixed(2)
                 color: root.itemColor
-                font.pixelSize: 14
+                font.pixelSize: FontConfig.normal
                 font.weight: Font.Bold
                 font.family: "Consolas"
                 anchors.right: parent.right
@@ -169,7 +170,7 @@ Item {
             Text {
                 text: root.jointType === "P" ? "m" : "deg"
                 color: "#60ffffff"
-                font.pixelSize: 9
+                font.pixelSize: FontConfig.tiny
                 anchors.right: parent.right
             }
         }

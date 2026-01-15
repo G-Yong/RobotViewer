@@ -1,4 +1,4 @@
-import QtQuick 2.15
+﻿import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components"
@@ -46,7 +46,7 @@ Item {
                     anchors.centerIn: parent
                     text: root.enabled ? "✓" : ""
                     color: "#00ff88"
-                    font.pixelSize: 14
+                    font.pixelSize: FontConfig.normal
                     font.weight: Font.Bold
                 }
                 
@@ -58,34 +58,17 @@ Item {
             }
             
             // 关节选择
-            Rectangle {
+            GlassComboBox {
                 Layout.fillWidth: true
                 height: 28
-                radius: 6
-                color: "#15ffffff"
-                border.color: "#30ffffff"
-                border.width: 1
+                model: root.availableJoints
+                currentValue: root.jointName
+                placeholder: qsTr("选择关节")
+                popupWidth: 250
                 
-                ComboBox {
-                    id: jointCombo
-                    anchors.fill: parent
-                    model: root.availableJoints
-                    currentIndex: root.availableJoints.indexOf(root.jointName)
-                    
-                    background: Rectangle { color: "transparent" }
-                    
-                    contentItem: Text {
-                        text: jointCombo.displayText || qsTr("选择关节")
-                        color: jointCombo.displayText ? "#ffffff" : "#60ffffff"
-                        font.pixelSize: 12
-                        verticalAlignment: Text.AlignVCenter
-                        leftPadding: 10
-                    }
-                    
-                    onCurrentTextChanged: {
-                        if (currentText !== root.jointName) {
-                            root.bindingChanged(currentText, root.nodeId, root.enabled)
-                        }
+                onValueChanged: function(value) {
+                    if (value !== root.jointName) {
+                        root.bindingChanged(value, root.nodeId, root.enabled)
                     }
                 }
             }
@@ -116,7 +99,7 @@ Item {
                 anchors.rightMargin: 60
                 text: root.nodeId
                 color: "#ffffff"
-                font.pixelSize: 12
+                font.pixelSize: FontConfig.small
                 font.family: "Consolas"
                 verticalAlignment: Text.AlignVCenter
                 selectByMouse: true
@@ -135,7 +118,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text: "NodeID"
                 color: "#50ffffff"
-                font.pixelSize: 10
+                font.pixelSize: FontConfig.tiny
                 visible: nodeInput.text === ""
             }
         }

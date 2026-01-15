@@ -1,6 +1,7 @@
 ﻿import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.15
+import "."
 
 // 底部状态栏 - 包含状态信息和操作提示
 Item {
@@ -42,7 +43,7 @@ Item {
             Text {
                 text: statusText
                 color: "#a0ffffff"
-                font.pixelSize: 11
+                font.pixelSize: FontConfig.small
                 elide: Text.ElideMiddle
                 width: parent.width - 18
                 anchors.verticalCenter: parent.verticalCenter
@@ -81,14 +82,14 @@ Item {
                     Text {
                         anchors.centerIn: parent
                         text: "🖱"
-                        font.pixelSize: 9
+                        font.pixelSize: FontConfig.tiny
                     }
                 }
                 
                 Text {
                     text: "左键旋转"
                     color: "#80ffffff"
-                    font.pixelSize: 11
+                    font.pixelSize: FontConfig.small
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
@@ -110,14 +111,14 @@ Item {
                     Text {
                         anchors.centerIn: parent
                         text: "⚲"
-                        font.pixelSize: 9
+                        font.pixelSize: FontConfig.tiny
                     }
                 }
                 
                 Text {
                     text: "滚轮缩放"
                     color: "#80ffffff"
-                    font.pixelSize: 11
+                    font.pixelSize: FontConfig.small
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
@@ -139,7 +140,7 @@ Item {
                     Text {
                         anchors.centerIn: parent
                         text: "Shift"
-                        font.pixelSize: 8
+                        font.pixelSize: FontConfig.tiny
                         font.family: "Consolas"
                         color: "#c0ffffff"
                     }
@@ -148,7 +149,7 @@ Item {
                 Text {
                     text: "+拖动 平移"
                     color: "#80ffffff"
-                    font.pixelSize: 11
+                    font.pixelSize: FontConfig.small
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
@@ -190,7 +191,7 @@ Item {
                 Text {
                     text: connectionStatus ? "OPC UA 已连接" : "OPC UA 未连接"
                     color: connectionStatus ? "#00ff88" : "#60ffffff"
-                    font.pixelSize: 11
+                    font.pixelSize: FontConfig.small
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
@@ -212,7 +213,7 @@ Item {
                 Text {
                     text: fps
                     color: fps >= 50 ? "#00ff88" : (fps >= 30 ? "#ffaa00" : "#ff4444")
-                    font.pixelSize: 13
+                    font.pixelSize: FontConfig.normal
                     font.family: "Consolas"
                     font.weight: Font.Bold
                     anchors.verticalCenter: parent.verticalCenter
@@ -221,7 +222,7 @@ Item {
                 Text {
                     text: "FPS"
                     color: "#60ffffff"
-                    font.pixelSize: 10
+                    font.pixelSize: FontConfig.tiny
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }

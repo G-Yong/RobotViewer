@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
+import "../components"
 
 // 设置组组件
 Item {
@@ -18,14 +19,14 @@ Item {
         
         Text {
             text: root.iconText
-            font.pixelSize: 16
+            font.pixelSize: FontConfig.medium
             anchors.verticalCenter: parent.verticalCenter
         }
         
         Text {
             text: root.title
             color: "#ffffff"
-            font.pixelSize: 14
+            font.pixelSize: FontConfig.normal
             font.weight: Font.Bold
             anchors.verticalCenter: parent.verticalCenter
         }

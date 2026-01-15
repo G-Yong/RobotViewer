@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "."
 
 // 坐标值显示组件
 Row {
@@ -13,7 +14,7 @@ Row {
     Text {
         text: root.label + ":"
         color: root.textColor
-        font.pixelSize: 11
+        font.pixelSize: FontConfig.small
         font.weight: Font.Bold
         anchors.verticalCenter: parent.verticalCenter
     }
@@ -21,7 +22,7 @@ Row {
     Text {
         text: root.value.toFixed(3)
         color: root.textColor
-        font.pixelSize: 12
+        font.pixelSize: FontConfig.small
         font.family: "Consolas"
         font.weight: Font.Medium
         anchors.verticalCenter: parent.verticalCenter

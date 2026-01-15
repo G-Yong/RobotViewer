@@ -188,7 +188,7 @@ ApplicationWindow {
                     anchors.centerIn: parent
                     text: qsTr("释放以加载URDF文件")
                     color: "#00ff88"
-                    font.pixelSize: 18
+                    font.pixelSize: FontConfig.large
                     font.weight: Font.Medium
                 }
             }

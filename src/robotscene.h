@@ -145,11 +145,6 @@ public:
     QMatrix4x4 getWorldMatrix(Qt3DCore::QEntity *entity) const;
     
     /**
-     * @brief 重置相机视角
-     */
-    void resetCamera();
-    
-    /**
      * @brief 适配视角到机器人
      */
     void fitCameraToRobot();

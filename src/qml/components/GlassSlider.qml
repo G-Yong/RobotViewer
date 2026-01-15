@@ -1,6 +1,7 @@
 ﻿import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.15
+import "."
 
 // 游戏风格滑块
 Item {
@@ -32,16 +33,16 @@ Item {
             Text {
                 text: label
                 color: "#a0ffffff"
-                font.pixelSize: 13
+                font.pixelSize: FontConfig.normal
                 font.weight: Font.Medium
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
             }
-            
+
             Text {
                 text: root.value.toFixed(decimals) + suffix
                 color: accentColor
-                font.pixelSize: 13
+                font.pixelSize: FontConfig.normal
                 font.weight: Font.Bold
                 font.family: "Consolas"
                 anchors.right: parent.right

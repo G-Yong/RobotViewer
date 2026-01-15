@@ -49,7 +49,7 @@ Item {
                     anchors.centerIn: parent
                     text: root.enabled ? "✓" : ""
                     color: "#00ff88"
-                    font.pixelSize: 14
+                    font.pixelSize: FontConfig.normal
                     font.weight: Font.Bold
                 }
                 
@@ -61,71 +61,18 @@ Item {
             }
             
             // 链接选择下拉框
-            Rectangle {
+            GlassComboBox {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 150
                 height: 28
-                radius: 6
-                color: "#15ffffff"
-                border.color: "#30ffffff"
-                border.width: 1
+                model: root.availableLinks
+                currentValue: root.linkName
+                placeholder: qsTr("选择链接")
+                popupWidth: 250
                 
-                ComboBox {
-                    id: linkCombo
-                    anchors.fill: parent
-                    model: root.availableLinks
-                    currentIndex: root.availableLinks.indexOf(root.linkName)
-                    
-                    background: Rectangle { color: "transparent" }
-                    
-                    contentItem: Text {
-                        text: linkCombo.displayText || qsTr("选择链接")
-                        color: linkCombo.displayText ? "#ffffff" : "#60ffffff"
-                        font.pixelSize: 12
-                        verticalAlignment: Text.AlignVCenter
-                        leftPadding: 10
-                    }
-                    
-                    popup: Popup {
-                        y: linkCombo.height
-                        width: Math.max(linkCombo.width, 250)
-                        implicitHeight: contentItem.implicitHeight
-                        padding: 1
-                        
-                        contentItem: ListView {
-                            clip: true
-                            implicitHeight: Math.min(contentHeight, 200)
-                            model: linkCombo.popup.visible ? linkCombo.delegateModel : null
-                            currentIndex: linkCombo.highlightedIndex
-                            
-                            ScrollBar.vertical: ScrollBar { }
-                        }
-                        
-                        background: Rectangle {
-                            color: "#1a1a2e"
-                            border.color: "#40ffffff"
-                            radius: 4
-                        }
-                    }
-                    
-                    delegate: ItemDelegate {
-                        width: linkCombo.width
-                        contentItem: Text {
-                            text: modelData
-                            color: "#ffffff"
-                            font.pixelSize: 12
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                        background: Rectangle {
-                            color: highlighted ? "#30ffffff" : "transparent"
-                        }
-                        highlighted: linkCombo.highlightedIndex === index
-                    }
-                    
-                    onCurrentTextChanged: {
-                        if (currentText && currentText !== root.linkName) {
-                            root.configChanged(currentText, root.displayName, root.colorHex, root.enabled)
-                        }
+                onValueChanged: function(value) {
+                    if (value && value !== root.linkName) {
+                        root.configChanged(value, root.displayName, root.colorHex, root.enabled)
                     }
                 }
             }
@@ -162,7 +109,7 @@ Item {
                     anchors.rightMargin: 10
                     text: root.displayName
                     color: "#ffffff"
-                    font.pixelSize: 12
+                    font.pixelSize: FontConfig.small
                     verticalAlignment: Text.AlignVCenter
                     selectByMouse: true
                     
@@ -172,7 +119,7 @@ Item {
                         anchors.fill: parent
                         text: nameInput.placeholderText
                         color: "#60ffffff"
-                        font.pixelSize: 12
+                        font.pixelSize: FontConfig.small
                         verticalAlignment: Text.AlignVCenter
                         visible: !nameInput.text && !nameInput.activeFocus
                     }

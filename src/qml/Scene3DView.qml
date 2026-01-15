@@ -219,9 +219,9 @@ Item {
     
     // 暴露给外部的方法
     function resetCamera() {
-        mainCamera.position = Qt.vector3d(3, 3, 3)
-        mainCamera.viewCenter = Qt.vector3d(0, 0, 0)
-        mainCamera.upVector = Qt.vector3d(0, 1, 0)
+        mainCamera.position   = Qt.vector3d(-2, 2, -1)
+        mainCamera.viewCenter = Qt.vector3d(0, 0.5, 0)
+        mainCamera.upVector   = Qt.vector3d(0, 1, 0)
     }
     
     function fitToModel() {

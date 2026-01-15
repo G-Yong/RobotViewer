@@ -529,12 +529,6 @@ QMatrix4x4 RobotScene::getWorldMatrix(Qt3DCore::QEntity *entity) const
     return matrix;
 }
 
-void RobotScene::resetCamera()
-{
-    // 相机控制已移至QML端，此函数保留用于信号发射
-    // 实际相机重置由 RobotBridge 发出信号通知 QML
-}
-
 void RobotScene::fitCameraToRobot()
 {
     // 获取机器人包围盒信息
@@ -542,7 +536,7 @@ void RobotScene::fitCameraToRobot()
     
     QVector3D minPoint, maxPoint;
     m_robotEntity->getBoundingBox(minPoint, maxPoint);
-    
+
     // 计算中心点和尺寸
     QVector3D center = (minPoint + maxPoint) * 0.5f;
     QVector3D size = maxPoint - minPoint;
@@ -564,7 +558,7 @@ void RobotScene::fitCameraToRobot()
     cameraPos.setX(center.x() + distance * qCos(elevation) * qSin(angle));
     cameraPos.setY(center.y() + distance * qSin(elevation));
     cameraPos.setZ(center.z() + distance * qCos(elevation) * qCos(angle));
-    
+
     // 通过 RobotBridge 发送信号到 QML
     // 这里我们直接将计算结果返回给调用者（RobotBridge会处理）
     emit fitCameraRequested(center, cameraPos);

@@ -1,11 +1,11 @@
-#include "orbitcameracontroller.h"
+﻿#include "orbitcameracontroller.h"
 #include <QtMath>
 #include <QDebug>
 
 OrbitCameraController::OrbitCameraController(Qt3DCore::QEntity* parent)
     : Qt3DCore::QEntity(parent)
-    , m_lookAtCenter(0, 0, 0)
-    , m_defaultPosition(3, 3, 3)
+    , m_lookAtCenter(0, 1, 0)
+    , m_defaultPosition(0, 1, 0)
     , m_defaultCenter(0, 0, 0)
 {
     // 创建鼠标设备和处理器

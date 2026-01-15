@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.15
+import "."
 
 // 消息弹出提示
 Item {
@@ -47,7 +48,7 @@ Item {
         Text {
             text: isError ? "⚠" : "✓"
             color: isError ? "#ff4444" : "#00ff88"
-            font.pixelSize: 20
+            font.pixelSize: FontConfig.large
             anchors.verticalCenter: parent.verticalCenter
         }
         
@@ -56,7 +57,7 @@ Item {
             id: messageText
             text: ""
             color: "#ffffff"
-            font.pixelSize: 14
+            font.pixelSize: FontConfig.normal
             font.weight: Font.Medium
             wrapMode: Text.WordWrap
             maximumLineCount: 3
@@ -72,7 +73,7 @@ Item {
         anchors.margins: 8
         text: "✕"
         color: "#60ffffff"
-        font.pixelSize: 14
+        font.pixelSize: FontConfig.normal
         
         MouseArea {
             anchors.fill: parent

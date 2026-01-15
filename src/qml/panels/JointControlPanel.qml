@@ -81,7 +81,7 @@ Item {
             Text {
                 text: qsTr("关节控制")
                 color: "#ffffff"
-                font.pixelSize: 13
+                font.pixelSize: FontConfig.normal
                 font.weight: Font.Bold
             }
             
@@ -97,7 +97,7 @@ Item {
                     anchors.centerIn: parent
                     text: jointModel.count + qsTr(" 个关节")
                     color: "#80ffffff"
-                    font.pixelSize: 10
+                    font.pixelSize: FontConfig.tiny
                 }
             }
             
@@ -163,21 +163,21 @@ Item {
                     Text {
                         text: "🔧"
                         color: "#40ffffff"
-                        font.pixelSize: 40
+                        font.pixelSize: FontConfig.valueDisplay
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                     
                     Text {
                         text: qsTr("暂无可控关节")
                         color: "#60ffffff"
-                        font.pixelSize: 13
+                        font.pixelSize: FontConfig.normal
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                     
                     Text {
                         text: qsTr("请先加载机器人模型")
                         color: "#40ffffff"
-                        font.pixelSize: 11
+                        font.pixelSize: FontConfig.small
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                 }

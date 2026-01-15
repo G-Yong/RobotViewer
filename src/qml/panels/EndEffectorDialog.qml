@@ -49,13 +49,13 @@ Popup {
             
             Text {
                 text: "🎯"
-                font.pixelSize: 24
+                font.pixelSize: FontConfig.xlarge
             }
             
             Text {
                 text: qsTr("末端执行器配置")
                 color: "#ffffff"
-                font.pixelSize: 18
+                font.pixelSize: FontConfig.large
                 font.weight: Font.Bold
             }
             
@@ -87,7 +87,7 @@ Popup {
             Layout.fillWidth: true
             text: qsTr("配置需要显示轨迹的末端执行器（如工具末端、手指尖端等）。每个末端执行器会显示其运动轨迹。")
             color: "#80ffffff"
-            font.pixelSize: 12
+            font.pixelSize: FontConfig.small
             wrapMode: Text.WordWrap
         }
         
@@ -145,21 +145,21 @@ Popup {
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: "📭"
-                            font.pixelSize: 32
+                            font.pixelSize: FontConfig.huge
                         }
                         
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: qsTr("暂无末端执行器配置")
                             color: "#60ffffff"
-                            font.pixelSize: 13
+                            font.pixelSize: FontConfig.normal
                         }
                         
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: qsTr("点击下方按钮添加")
                             color: "#40ffffff"
-                            font.pixelSize: 11
+                            font.pixelSize: FontConfig.small
                         }
                     }
                 }

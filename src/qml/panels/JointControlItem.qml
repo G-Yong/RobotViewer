@@ -25,7 +25,8 @@ Item {
         "#ffeaa7", "#dfe6e9", "#fd79a8", "#a29bfe",
         "#00b894", "#e17055", "#74b9ff", "#55efc4"
     ]
-    property color itemColor: jointColors[jointIndex % jointColors.length]
+    property color itemColor: jointColors[jointIndex % jointColors.length] === undefined ? "#ffffff"
+                                                                                         : jointColors[jointIndex % jointColors.length]
     
     GlassPanel {
         anchors.fill: parent
@@ -57,7 +58,7 @@ Item {
                     anchors.centerIn: parent
                     text: (root.jointIndex + 1).toString().padStart(2, '0')
                     color: root.itemColor
-                    font.pixelSize: 10
+                    font.pixelSize: FontConfig.tiny
                     font.weight: Font.Bold
                     font.family: "Consolas"
                 }
@@ -71,7 +72,7 @@ Item {
                 Text {
                     text: root.jointName
                     color: "#ffffff"
-                    font.pixelSize: 13
+                    font.pixelSize: FontConfig.normal
                     font.weight: Font.Medium
                     elide: Text.ElideRight
                     width: parent.width
@@ -87,7 +88,7 @@ Item {
                         }
                     }
                     color: "#80ffffff"
-                    font.pixelSize: 11
+                    font.pixelSize: FontConfig.small
                 }
             }
 
@@ -106,7 +107,7 @@ Item {
                     width: parent.width - 20
                     text: root.jointValue.toFixed(2)
                     color: root.itemColor
-                    font.pixelSize: 13
+                    font.pixelSize: FontConfig.normal
                     font.weight: Font.Bold
                     font.family: "Consolas"
                     horizontalAlignment: Text.AlignHCenter
@@ -131,7 +132,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.jointType === "P" ? "m" : "°"
                     color: "#80ffffff"
-                    font.pixelSize: 11
+                    font.pixelSize: FontConfig.small
                 }
             }
         }
@@ -269,7 +270,7 @@ Item {
             Text {
                 text: root.jointMin.toFixed(0) + (root.jointType === "P" ? "m" : "°")
                 color: "#a0ffffff"
-                font.pixelSize: 10
+                font.pixelSize: FontConfig.tiny
             }
 
             Item { Layout.fillWidth: true }
@@ -277,7 +278,7 @@ Item {
             Text {
                 text: root.jointMax.toFixed(0) + (root.jointType === "P" ? "m" : "°")
                 color: "#a0ffffff"
-                font.pixelSize: 10
+                font.pixelSize: FontConfig.tiny
             }
         }
     }

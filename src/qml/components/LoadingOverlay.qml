@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.15
+import "."
 
 // 加载叠加层
 Rectangle {
@@ -65,7 +66,7 @@ Rectangle {
             Text {
                 anchors.centerIn: parent
                 text: "⚙"
-                font.pixelSize: 24
+                font.pixelSize: FontConfig.xlarge
                 color: "#00ff88"
                 
                 RotationAnimation on rotation {
@@ -81,7 +82,7 @@ Rectangle {
         Text {
             text: message
             color: "#ffffff"
-            font.pixelSize: 16
+            font.pixelSize: FontConfig.medium
             font.weight: Font.Medium
             anchors.horizontalCenter: parent.horizontalCenter
             

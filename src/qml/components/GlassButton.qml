@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.15
+import "."
 
 // 游戏风格按钮
 Rectangle {
@@ -72,7 +73,7 @@ Rectangle {
             visible: text !== ""
             text: root.text
             color: highlighted ? accentColor : "#ffffff"
-            font.pixelSize: 14
+            font.pixelSize: FontConfig.normal
             font.weight: Font.Medium
             anchors.verticalCenter: parent.verticalCenter
         }
@@ -115,7 +116,7 @@ Rectangle {
         contentItem: Text {
             text: root.tooltipText
             color: "#ffffff"
-            font.pixelSize: 12
+            font.pixelSize: FontConfig.small
         }
     }
 }

@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.15
+import "."
 
 // 顶部HUD栏
 Item {
@@ -40,7 +41,7 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: "🤖"
-                    font.pixelSize: 22
+                    font.pixelSize: FontConfig.xlarge
                 }
                 
                 // 脉冲动画
@@ -57,7 +58,7 @@ Item {
                 Text {
                     text: "ROBOT VIEWER"
                     color: "#ffffff"
-                    font.pixelSize: 16
+                    font.pixelSize: FontConfig.medium
                     font.weight: Font.Bold
                     font.letterSpacing: 2
                 }
@@ -65,7 +66,7 @@ Item {
                 Text {
                     text: robotName || "未加载模型"
                     color: robotName ? "#00ff88" : "#60ffffff"
-                    font.pixelSize: 11
+                    font.pixelSize: FontConfig.small
                     font.weight: Font.Medium
                 }
             }
@@ -124,7 +125,7 @@ Item {
                 Text {
                     text: "END EFFECTOR"
                     color: "#60ffffff"
-                    font.pixelSize: 9
+                    font.pixelSize: FontConfig.tiny
                     font.weight: Font.Medium
                     font.letterSpacing: 1
                 }

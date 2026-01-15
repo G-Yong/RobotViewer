@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtGraphicalEffects 1.15
+import "."
 
 // 关节信息叠加显示（显示在3D场景上方）
 Item {
@@ -89,14 +90,14 @@ Item {
             Text {
                 text: "⚡"
                 color: accentColor
-                font.pixelSize: 16
+                font.pixelSize: FontConfig.medium
                 anchors.verticalCenter: parent.verticalCenter
             }
             
             Text {
                 text: "JOINTS"
                 color: "#ffffff"
-                font.pixelSize: 12
+                font.pixelSize: FontConfig.small
                 font.weight: Font.Bold
                 font.letterSpacing: 2
                 anchors.verticalCenter: parent.verticalCenter
@@ -117,7 +118,7 @@ Item {
                     anchors.centerIn: parent
                     text: jointModel.count
                     color: accentColor
-                    font.pixelSize: 10
+                    font.pixelSize: FontConfig.tiny
                     font.weight: Font.Bold
                 }
             }
@@ -188,21 +189,21 @@ Item {
         Text {
             text: "⚙"
             color: "#40ffffff"
-            font.pixelSize: 32
+            font.pixelSize: FontConfig.huge
             anchors.horizontalCenter: parent.horizontalCenter
         }
         
         Text {
             text: qsTr("暂无关节数据")
             color: "#60ffffff"
-            font.pixelSize: 12
+            font.pixelSize: FontConfig.small
             anchors.horizontalCenter: parent.horizontalCenter
         }
         
         Text {
             text: qsTr("请加载URDF文件")
             color: "#40ffffff"
-            font.pixelSize: 10
+            font.pixelSize: FontConfig.tiny
             anchors.horizontalCenter: parent.horizontalCenter
         }
     }

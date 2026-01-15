@@ -6,10 +6,12 @@
         
         <!-- 组件 -->
         <file>qml/components/qmldir</file>
+        <file>qml/components/FontConfig.qml</file>
         <file>qml/components/GlassPanel.qml</file>
         <file>qml/components/GlassButton.qml</file>
         <file>qml/components/GlassToggle.qml</file>
         <file>qml/components/GlassSlider.qml</file>
+        <file>qml/components/GlassComboBox.qml</file>
         <file>qml/components/LoadingOverlay.qml</file>
         <file>qml/components/MessagePopup.qml</file>
         <file>qml/components/TopHUD.qml</file>

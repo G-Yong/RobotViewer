@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import "../components"
 
 // 游戏风格Tab按钮
 TabButton {
@@ -40,14 +41,14 @@ TabButton {
         
         Text {
             text: root.iconText
-            font.pixelSize: 14
+            font.pixelSize: FontConfig.normal
             anchors.verticalCenter: parent.verticalCenter
         }
         
         Text {
             text: root.text
             color: root.checked ? "#ffffff" : "#80ffffff"
-            font.pixelSize: 12
+            font.pixelSize: FontConfig.small
             font.weight: root.checked ? Font.Bold : Font.Medium
             anchors.verticalCenter: parent.verticalCenter
             

@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.15
+import "."
 
 // 游戏风格开关按钮
 Item {
@@ -75,7 +76,7 @@ Item {
         Text {
             text: root.text
             color: checked ? "#ffffff" : "#80ffffff"
-            font.pixelSize: 13
+            font.pixelSize: FontConfig.normal
             font.weight: Font.Medium
             anchors.verticalCenter: parent.verticalCenter
             

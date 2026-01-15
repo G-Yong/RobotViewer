@@ -46,12 +46,12 @@ Item {
                         spacing: 10
                         Text {
                             text: "📡"
-                            font.pixelSize: 18
+                            font.pixelSize: FontConfig.large
                         }
                         Text {
                             text: qsTr("连接设置")
                             color: "#ffffff"
-                            font.pixelSize: 16
+                            font.pixelSize: FontConfig.medium
                             font.weight: Font.Bold
                         }
                     }
@@ -64,7 +64,7 @@ Item {
                         Text {
                             text: qsTr("服务器地址")
                             color: "#b0ffffff"
-                            font.pixelSize: 13
+                            font.pixelSize: FontConfig.normal
                         }
                         
                         Rectangle {
@@ -81,7 +81,7 @@ Item {
                                 anchors.margins: 14
                                 text: robotBridge ? robotBridge.opcuaServerUrl : ""
                                 color: "#ffffff"
-                                font.pixelSize: 14
+                                font.pixelSize: FontConfig.normal
                                 verticalAlignment: Text.AlignVCenter
                                 selectByMouse: true
                                 
@@ -100,7 +100,7 @@ Item {
                         Text {
                             text: qsTr("节点前缀")
                             color: "#b0ffffff"
-                            font.pixelSize: 13
+                            font.pixelSize: FontConfig.normal
                         }
                         
                         Rectangle {
@@ -115,9 +115,10 @@ Item {
                                 id: prefixInput
                                 anchors.fill: parent
                                 anchors.margins: 14
+                                clip: true
                                 text: robotBridge ? robotBridge.opcuaPrefix : ""
                                 color: "#ffffff"
-                                font.pixelSize: 14
+                                font.pixelSize: FontConfig.normal
                                 verticalAlignment: Text.AlignVCenter
                                 selectByMouse: true
                                 
@@ -141,7 +142,7 @@ Item {
                             Text {
                                 text: qsTr("采样间隔")
                                 color: "#b0ffffff"
-                                font.pixelSize: 13
+                                font.pixelSize: FontConfig.normal
                             }
                             
                             Rectangle {
@@ -160,7 +161,7 @@ Item {
                                         id: intervalInput
                                         text: robotBridge ? robotBridge.opcuaSampleInterval.toString() : "100"
                                         color: "#ffffff"
-                                        font.pixelSize: 14
+                                        font.pixelSize: FontConfig.normal
                                         font.family: "Consolas"
                                         validator: IntValidator { bottom: 10; top: 10000 }
                                         selectByMouse: true
@@ -176,7 +177,7 @@ Item {
                                     Text {
                                         text: "ms"
                                         color: "#80ffffff"
-                                        font.pixelSize: 13
+                                        font.pixelSize: FontConfig.normal
                                         anchors.verticalCenter: parent.verticalCenter
                                     }
                                 }
@@ -191,7 +192,7 @@ Item {
                             Text {
                                 text: qsTr("命名空间")
                                 color: "#b0ffffff"
-                                font.pixelSize: 13
+                                font.pixelSize: FontConfig.normal
                             }
                             
                             Rectangle {
@@ -207,7 +208,7 @@ Item {
                                     anchors.centerIn: parent
                                     text: robotBridge ? robotBridge.opcuaNamespace.toString() : "2"
                                     color: "#ffffff"
-                                    font.pixelSize: 14
+                                    font.pixelSize: FontConfig.normal
                                     font.family: "Consolas"
                                     validator: IntValidator { bottom: 0; top: 100 }
                                     selectByMouse: true
@@ -301,7 +302,7 @@ Item {
                         return qsTr("未连接")
                     }
                     color: "#b0ffffff"
-                    font.pixelSize: 14
+                    font.pixelSize: FontConfig.normal
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
@@ -320,28 +321,17 @@ Item {
                 
                 Text {
                     text: "🔧"
-                    font.pixelSize: 18
+                    font.pixelSize: FontConfig.large
                 }
                 
                 Text {
                     text: qsTr("节点绑定")
                     color: "#ffffff"
-                    font.pixelSize: 16
+                    font.pixelSize: FontConfig.medium
                     font.weight: Font.Bold
                 }
                 
                 Item { Layout.fillWidth: true }
-                
-                GlassButton {
-                    width: 36
-                    height: 36
-                    iconText: "+"
-                    tooltipText: qsTr("添加绑定")
-                    accentColor: "#00ff88"
-                    onClicked: {
-                        if (robotBridge) robotBridge.addOpcuaBinding()
-                    }
-                }
             }
             
             // ===== 绑定列表 =====
@@ -368,6 +358,18 @@ Item {
                         }
                     }
                 }
+                
+                // 添加按钮 - 放在列表末尾
+                GlassButton {
+                    width: parent.width
+                    height: 44
+                    text: qsTr("添加节点绑定")
+                    iconText: "➕"
+                    
+                    onClicked: {
+                        if (robotBridge) robotBridge.addOpcuaBinding()
+                    }
+                }
             }
             
             // ===== 空状态提示 =====
@@ -381,21 +383,21 @@ Item {
                 Text {
                     text: "📋"
                     color: "#40ffffff"
-                    font.pixelSize: 40
+                    font.pixelSize: FontConfig.valueDisplay
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
                 
                 Text {
                     text: qsTr("暂无绑定配置")
                     color: "#70ffffff"
-                    font.pixelSize: 14
+                    font.pixelSize: FontConfig.normal
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
                 
                 Text {
-                    text: qsTr("点击 + 添加新绑定")
+                    text: qsTr("点击下方按钮添加绑定")
                     color: "#50ffffff"
-                    font.pixelSize: 12
+                    font.pixelSize: FontConfig.small
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
             }
