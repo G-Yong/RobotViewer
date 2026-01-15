@@ -45,9 +45,9 @@ Item {
         anchors.fill: parent
         
         layer.enabled: true
-        // layer.effect: FastBlur {
-        //     radius: 0
-        // }
+        layer.effect: FastBlur {
+            radius: 0
+        }
         
         // 多层渐变模拟光线散射
         Rectangle {
@@ -66,42 +66,42 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: cornerRadius
-            rotation: 90
             gradient: Gradient {
+                orientation: Gradient.Horizontal
                 GradientStop { position: 0.0; color: "#08ffffff" }
-                GradientStop { position: 0.5; color: "#02ffffff" }
+                GradientStop { position: 0.5; color: "#00ffffff" }
                 GradientStop { position: 1.0; color: "#06ffffff" }
             }
         }
     }
     
-    // 噪点纹理 - 模拟磨砂质感
-    Item {
-        anchors.fill: parent
-        opacity: 0.015
+    // // 噪点纹理 - 模拟磨砂质感
+    // Item {
+    //     anchors.fill: parent
+    //     opacity: 0.015
         
-        layer.enabled: true
-        layer.effect: OpacityMask {
-            maskSource: Rectangle {
-                width: root.width
-                height: root.height
-                radius: root.cornerRadius
-            }
-        }
+    //     layer.enabled: true
+    //     layer.effect: OpacityMask {
+    //         maskSource: Rectangle {
+    //             width: root.width
+    //             height: root.height
+    //             radius: root.cornerRadius
+    //         }
+    //     }
         
-        Repeater {
-            model: 50
-            Rectangle {
-                x: Math.random() * root.width
-                y: Math.random() * root.height
-                width: 1 + Math.random() * 2
-                height: 1 + Math.random() * 2
-                radius: width / 2
-                color: Math.random() > 0.5 ? "#ffffff" : "#000000"
-                opacity: 0.3 + Math.random() * 0.7
-            }
-        }
-    }
+    //     Repeater {
+    //         model: 50
+    //         Rectangle {
+    //             x: Math.random() * root.width
+    //             y: Math.random() * root.height
+    //             width: 1 + Math.random() * 2
+    //             height: 1 + Math.random() * 2
+    //             radius: width / 2
+    //             color: Math.random() > 0.5 ? "#ffffff" : "#000000"
+    //             opacity: 0.3 + Math.random() * 0.7
+    //         }
+    //     }
+    // }
     
     // 内发光效果
     Rectangle {
