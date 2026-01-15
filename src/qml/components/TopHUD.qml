@@ -8,6 +8,7 @@ Item {
     id: root
     
     property string robotName: ""
+    property string appVersion: "0.0.0"
     property vector3d endEffectorPosition: Qt.vector3d(0, 0, 0)
     
     signal settingsClicked()
@@ -55,12 +56,36 @@ Item {
             Column {
                 anchors.verticalCenter: parent.verticalCenter
                 
-                Text {
-                    text: "ROBOT VIEWER"
-                    color: "#ffffff"
-                    font.pixelSize: FontConfig.medium
-                    font.weight: Font.Bold
-                    font.letterSpacing: 2
+                Row {
+                    spacing: 8
+                    
+                    Text {
+                        text: "ROBOT VIEWER"
+                        color: "#ffffff"
+                        font.pixelSize: FontConfig.medium
+                        font.weight: Font.Bold
+                        font.letterSpacing: 2
+                    }
+                    
+                    // 版本号徽章
+                    Rectangle {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: versionText.width + 10
+                        height: 18
+                        radius: 4
+                        color: "#20ffffff"
+                        border.color: "#40ffffff"
+                        border.width: 1
+                        
+                        Text {
+                            id: versionText
+                            anchors.centerIn: parent
+                            text: "v" + appVersion
+                            color: "#80ffffff"
+                            font.pixelSize: FontConfig.tiny
+                            font.family: "Consolas"
+                        }
+                    }
                 }
                 
                 Text {

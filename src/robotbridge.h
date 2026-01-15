@@ -87,7 +87,7 @@ public:
     Qt3DCore::QEntity* sceneRoot() const;
     
     // 版本
-    QString version() const { return "0.0.5"; }
+    QString version() const { return "0.1.0"; }
     
     // 机器人信息
     QString robotName() const { return m_robotName; }

@@ -53,6 +53,7 @@ ApplicationWindow {
         z: 100
         
         robotName: robotBridge ? robotBridge.robotName : ""
+        appVersion: robotBridge ? robotBridge.version : "0.0.0"
         endEffectorPosition: robotBridge ? robotBridge.endEffectorPosition : Qt.vector3d(0,0,0)
         
         onSettingsClicked: settingsPanelOpen = !settingsPanelOpen
