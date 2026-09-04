@@ -65,7 +65,7 @@ Item {
                 id: cameraController
                 camera: mainCamera
                 rotationSpeed: 0.3
-                panSpeed: 0.005
+                panSpeed: 0.001
                 zoomSpeed: 0.001
             }
             

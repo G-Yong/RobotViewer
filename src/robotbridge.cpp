@@ -541,7 +541,11 @@ void RobotBridge::updateOpcuaBinding(int index, const QString& jointName,
                                      const QString& nodeId, bool enabled)
 {
     m_opcuaBindings.updateBinding(index, jointName, nodeId, enabled);
-    emit opcuaBindingsChanged();
+    // 单个已有绑定行的内容编辑由 QML 编辑器直接驱动，这里不再重新广播整个
+    // opcuaBindings 列表。opcuaBindings 的 getter 每次读取都会新建一个 QVariantList，
+    // 若在此处 emit opcuaBindingsChanged()，Repeater 会重建全部 delegate，导致
+    // 正在输入的节点名 TextInput 在敲入第一个字符后即失去焦点。
+    // 新增/删除/加载设置 仍会 emit，用来刷新列表行数。
 }
 
 // 设置管理

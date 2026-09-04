@@ -53,7 +53,10 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: root.bindingChanged(root.jointName, root.nodeId, !root.enabled)
+                    onClicked: {
+                        root.enabled = !root.enabled
+                        root.bindingChanged(root.jointName, root.nodeId, root.enabled)
+                    }
                 }
             }
             
@@ -68,6 +71,7 @@ Item {
                 
                 onValueChanged: function(value) {
                     if (value !== root.jointName) {
+                        root.jointName = value
                         root.bindingChanged(value, root.nodeId, root.enabled)
                     }
                 }
@@ -107,6 +111,7 @@ Item {
                 
                 onTextChanged: {
                     if (text !== root.nodeId) {
+                        root.nodeId = text
                         root.bindingChanged(root.jointName, text, root.enabled)
                     }
                 }
