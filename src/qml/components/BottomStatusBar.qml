@@ -94,7 +94,7 @@ Item {
                 }
             }
             
-            // 滚轮/右键缩放
+            // 中键缩放
             Row {
                 spacing: 5
                 anchors.verticalCenter: parent.verticalCenter
@@ -116,14 +116,14 @@ Item {
                 }
                 
                 Text {
-                    text: "滚轮/右键缩放"
+                    text: "中键缩放"
                     color: "#80ffffff"
                     font.pixelSize: FontConfig.small
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
             
-            // Shift平移
+            // 右键平移
             Row {
                 spacing: 5
                 anchors.verticalCenter: parent.verticalCenter
@@ -139,7 +139,7 @@ Item {
                     
                     Text {
                         anchors.centerIn: parent
-                        text: "Shift"
+                        text: "🖱"
                         font.pixelSize: FontConfig.tiny
                         font.family: "Consolas"
                         color: "#c0ffffff"
@@ -147,7 +147,7 @@ Item {
                 }
                 
                 Text {
-                    text: "+拖动/中键按住 平移"
+                    text: "右键平移"
                     color: "#80ffffff"
                     font.pixelSize: FontConfig.small
                     anchors.verticalCenter: parent.verticalCenter
