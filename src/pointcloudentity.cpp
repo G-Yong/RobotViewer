@@ -4,6 +4,7 @@
 #include <QTextStream>
 #include <QRegularExpression>
 #include <Qt3DRender/QGraphicsApiFilter>
+#include <Qt3DRender/QFilterKey>
 #include <QDebug>
 
 #pragma execution_character_set("utf-8")
@@ -49,7 +50,7 @@ PointCloudEntity::PointCloudEntity(Qt3DCore::QEntity* parent)
     m_geometry->addAttribute(m_positionAttribute);
 
     m_colorAttribute = new Qt3DRender::QAttribute(m_geometry);
-    m_colorAttribute->setName(QStringLiteral("color"));
+    m_colorAttribute->setName(Qt3DRender::QAttribute::defaultColorAttributeName());
     m_colorAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
     m_colorAttribute->setVertexSize(3);
     m_colorAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
@@ -79,11 +80,17 @@ void PointCloudEntity::createShaderMaterial()
     m_material->setEffect(effect);
 
     Qt3DRender::QTechnique* technique = new Qt3DRender::QTechnique(effect);
+    // 与程序统一：OpenGL 4.3 Core（应用 QSurfaceFormat 相同）
     Qt3DRender::QGraphicsApiFilter* api = technique->graphicsApiFilter();
     api->setApi(Qt3DRender::QGraphicsApiFilter::OpenGL);
     api->setMajorVersion(4);
     api->setMinorVersion(3);
     api->setProfile(Qt3DRender::QGraphicsApiFilter::CoreProfile);
+    // ForwardRenderer 帧图按 renderingStyle=forward 筛选 technique，缺失则不渲染
+    Qt3DRender::QFilterKey* filterKey = new Qt3DRender::QFilterKey(technique);
+    filterKey->setName(QStringLiteral("renderingStyle"));
+    filterKey->setValue(QStringLiteral("forward"));
+    technique->addFilterKey(filterKey);
     effect->addTechnique(technique);
 
     Qt3DRender::QRenderPass* pass = new Qt3DRender::QRenderPass(technique);
@@ -98,14 +105,14 @@ void PointCloudEntity::createShaderMaterial()
     Qt3DRender::QShaderProgram* shader = new Qt3DRender::QShaderProgram(pass);
     shader->setVertexShaderCode(QByteArrayLiteral(
         "#version 430 core\n"
-        "in vec3 position;\n"
-        "in vec3 color;\n"
-        "uniform mat4 modelViewProjection;\n"
+        "in vec3 vertexPosition;\n"
+        "in vec3 vertexColor;\n"
+        "uniform mat4 mvp;\n"
         "uniform float pointSize;\n"
         "out vec3 vColor;\n"
         "void main() {\n"
-        "    vColor = color;\n"
-        "    gl_Position = modelViewProjection * vec4(position, 1.0);\n"
+        "    vColor = vertexColor;\n"
+        "    gl_Position = mvp * vec4(vertexPosition, 1.0);\n"
         "    gl_PointSize = pointSize;\n"
         "}\n"));
     shader->setFragmentShaderCode(QByteArrayLiteral(
