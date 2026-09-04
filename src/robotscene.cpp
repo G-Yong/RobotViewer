@@ -1,6 +1,7 @@
 ﻿#include "robotscene.h"
 #include "robotentity.h"
 #include "trajectoryentity.h"
+#include "pointcloudentity.h"
 
 #include <Qt3DRender/QCamera>
 #include <Qt3DRender/QCameraLens>
@@ -299,7 +300,10 @@ void RobotScene::createAxes()
 bool RobotScene::loadRobot(const QString& urdfFile)
 {
     if (!m_robotEntity) return false;
-    
+
+    // 加载新机器人时清除旧点云
+    removePointCloud();
+
     bool success = m_robotEntity->loadFromURDF(urdfFile);
     
     if (success) {
@@ -562,4 +566,85 @@ void RobotScene::fitCameraToRobot()
     // 通过 RobotBridge 发送信号到 QML
     // 这里我们直接将计算结果返回给调用者（RobotBridge会处理）
     emit fitCameraRequested(center, cameraPos);
+}
+
+bool RobotScene::addPointCloud(const QString& plyFile, const QString& linkName)
+{
+    if (!m_robotEntity) {
+        emit loadError(tr("请先加载机器人再添加点云。"));
+        return false;
+    }
+
+    LinkEntity* link = m_robotEntity->getLinkEntity(linkName);
+    if (!link) {
+        emit loadError(tr("点云坐标系 Link 不存在: %1").arg(linkName));
+        return false;
+    }
+
+    removePointCloud();
+
+    PointCloudEntity* pc = new PointCloudEntity(link);
+    if (!pc->loadFromPLY(plyFile)) {
+        pc->deleteLater();
+        emit loadError(tr("点云加载失败: %1").arg(plyFile));
+        return false;
+    }
+
+    m_pointCloud = pc;
+    m_pointCloudLink = linkName;
+    m_pointCloudVisible = true;
+    pc->setVisible(true);
+    pc->setPointSize(m_pointCloudPointSize);
+
+    emit pointCloudLoadedChanged();
+    emit pointCloudLinkChanged();
+    emit pointCloudVisibleChanged();
+    qDebug() << "PointCloud loaded:" << plyFile << "points:" << pc->vertexCount()
+             << "link:" << linkName;
+    return true;
+}
+
+void RobotScene::removePointCloud()
+{
+    if (!m_pointCloud)
+        return;
+
+    m_pointCloud->deleteLater();
+    m_pointCloud = nullptr;
+    m_pointCloudLink.clear();
+    emit pointCloudLoadedChanged();
+}
+
+void RobotScene::setPointCloudVisible(bool visible)
+{
+    m_pointCloudVisible = visible;
+    if (m_pointCloud)
+        m_pointCloud->setVisible(visible);
+    emit pointCloudVisibleChanged();
+}
+
+void RobotScene::setPointCloudLink(const QString& linkName)
+{
+    // 始终记录所选 link（即使尚未加载点云，供 QML combo 记住选择）
+    m_pointCloudLink = linkName;
+
+    if (!m_pointCloud)
+        return;
+
+    LinkEntity* link = m_robotEntity ? m_robotEntity->getLinkEntity(linkName) : nullptr;
+    if (link) {
+        // 重新挂到新 link 下（Qt3D QNode 会处理场景图重挂）
+        m_pointCloud->setParent(link);
+    } else {
+        emit loadError(tr("点云坐标系 Link 不存在: %1").arg(linkName));
+    }
+
+    emit pointCloudLinkChanged();
+}
+
+void RobotScene::setPointCloudPointSize(float size)
+{
+    m_pointCloudPointSize = size;
+    if (m_pointCloud)
+        m_pointCloud->setPointSize(size);
 }

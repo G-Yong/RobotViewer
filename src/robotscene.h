@@ -10,6 +10,7 @@
 
 class RobotEntity;
 class TrajectoryEntity;
+class PointCloudEntity;
 
 /**
  * @brief 机器人3D场景
@@ -148,11 +149,51 @@ public:
      * @brief 适配视角到机器人
      */
     void fitCameraToRobot();
+
+    /**
+     * @brief 加载并显示点云（挂到指定 link 下）
+     */
+    bool addPointCloud(const QString& plyFile, const QString& linkName);
+
+    /**
+     * @brief 移除点云
+     */
+    void removePointCloud();
+
+    /**
+     * @brief 设置点云可见性
+     */
+    void setPointCloudVisible(bool visible);
+    bool isPointCloudVisible() const { return m_pointCloudVisible; }
+
+    /**
+     * @brief 点云是否已加载
+     */
+    bool pointCloudLoaded() const { return m_pointCloud != nullptr; }
+
+    /**
+     * @brief 点云坐标系所在 link
+     */
+    QString pointCloudLink() const { return m_pointCloudLink; }
+
+    /**
+     * @brief 重新设置点云坐标系 link（会重新挂到新 link 下）
+     */
+    void setPointCloudLink(const QString& linkName);
+
+    /**
+     * @brief 设置点云点大小
+     */
+    void setPointCloudPointSize(float size);
+    float pointCloudPointSize() const { return m_pointCloudPointSize; }
     
 signals:
     void robotLoaded();
     void loadError(const QString& error);
     void fitCameraRequested(const QVector3D& center, const QVector3D& position);
+    void pointCloudLoadedChanged();
+    void pointCloudVisibleChanged();
+    void pointCloudLinkChanged();
     
 private:
     void createGrid();
@@ -171,6 +212,11 @@ private:
     
     Qt3DCore::QEntity* m_gridEntity = nullptr;
     Qt3DCore::QEntity* m_axesEntity = nullptr;
+
+    PointCloudEntity* m_pointCloud = nullptr;
+    QString m_pointCloudLink;
+    bool m_pointCloudVisible = true;
+    float m_pointCloudPointSize = 2.0f;
     
     bool m_gridVisible = true;
     bool m_axesVisible = true;
