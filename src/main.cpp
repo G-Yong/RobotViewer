@@ -12,10 +12,18 @@
 #include "robotbridge.h"
 #include "orbitcameracontroller.h"
 
+#include "../QtUtilities/src/log.h"
+
 #pragma execution_character_set("utf-8")
 
 int main(int argc, char *argv[])
 {
+    QtUtil::enableANSIConsole();                        // enable ANSI colours on Windows
+    QtUtil::logDir = "logs";                            // set log directory (default: "../log")
+    qInstallMessageHandler(QtUtil::logToFile);          // redirect Qt messages to file + console
+    QtUtil::redirectStdStreams();                       // capture printf + std::cout + std::cerr → log
+    QtUtil::cleanExpiredLogFile(QtUtil::logDir, 30);   // delete log files older than 30 days
+
     // 启用高DPI缩放
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);

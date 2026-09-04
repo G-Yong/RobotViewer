@@ -26,6 +26,11 @@ ApplicationWindow {
     // 本地引用 C++ 的 robotBridge（避免子组件中的 binding loop）
     readonly property var bridge: robotBridge
     
+
+    Component.onCompleted: {
+        console.log("--- component.onCompleted ---")
+    }
+
     // 背景 (3D场景将在这层下方由C++渲染)
     Rectangle {
         id: background
