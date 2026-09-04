@@ -23,7 +23,8 @@ SOURCES += \
     viewoptions.cpp \
     opcuabindingmodel.cpp \
     endeffectorconfigmodel.cpp \
-    orbitcameracontroller.cpp
+    orbitcameracontroller.cpp \
+    pointcloudentity.cpp
 
 HEADERS += \
     commontypes.h \
@@ -36,7 +37,8 @@ HEADERS += \
     viewoptions.h \
     opcuabindingmodel.h \
     endeffectorconfigmodel.h \
-    orbitcameracontroller.h
+    orbitcameracontroller.h \
+    pointcloudentity.h
 
 
     SOURCES += \
