@@ -177,26 +177,34 @@ void OrbitCameraController::onMouseReleased(Qt3DInput::QMouseEvent* event)
     }
 }
 
-void OrbitCameraController::onMouseMoved(Qt3DInput::QMouseEvent* event)
+void OrbitCameraController::onMouseMoved(Qt3DInput::QMouseEvent *event)
 {
     QPoint currentPos(event->x(), event->y());
     QPoint delta = currentPos - m_lastMousePos;
     m_lastMousePos = currentPos;
-    
-    if (m_leftButtonPressed) {
-        if (m_shiftPressed) {
+
+    if (m_leftButtonPressed)
+    {
+        if (m_shiftPressed)
+        {
             // Shift + 左键：平移（备用方式）
             pan(delta.x(), delta.y());
-        } else {
+        }
+        else
+        {
             // 左键：旋转
             rotate(delta.x(), delta.y());
         }
-    } else if (m_middleButtonPressed) {
-        // 中键：平移
+    }
+    else if (m_middleButtonPressed)
+    {
+        // 中键：缩放
+        zoom(-delta.y() * 10);
+    }
+    else if (m_rightButtonPressed)
+    {
+        // 右键：平移
         pan(delta.x(), delta.y());
-    } else if (m_rightButtonPressed) {
-            // 右键：缩放
-            zoom(-delta.y() * 10);
     }
 }
 
