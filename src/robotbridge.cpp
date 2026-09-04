@@ -75,6 +75,9 @@ void RobotBridge::setupConnections()
     connect(m_scene, &RobotScene::loadError, this, &RobotBridge::onLoadError);
     // 信号直连：RobotScene::fitCameraRequested -> RobotBridge::fitCameraRequested
     connect(m_scene, &RobotScene::fitCameraRequested, this, &RobotBridge::fitCameraRequested);
+    connect(m_scene, &RobotScene::pointCloudLoadedChanged, this, &RobotBridge::pointCloudLoadedChanged);
+    connect(m_scene, &RobotScene::pointCloudVisibleChanged, this, &RobotBridge::pointCloudVisibleChanged);
+    connect(m_scene, &RobotScene::pointCloudLinkChanged, this, &RobotBridge::pointCloudLinkChanged);
 }
 
 void RobotBridge::openURDF()
@@ -241,6 +244,81 @@ void RobotBridge::fitCamera()
     if (m_scene) {
         m_scene->fitCameraToRobot();
     }
+}
+
+// 点云 Getters/Setters
+bool RobotBridge::pointCloudVisible() const
+{
+    return m_scene ? m_scene->isPointCloudVisible() : false;
+}
+
+bool RobotBridge::pointCloudLoaded() const
+{
+    return m_scene ? m_scene->pointCloudLoaded() : false;
+}
+
+QString RobotBridge::pointCloudLink() const
+{
+    return m_scene ? m_scene->pointCloudLink() : QString();
+}
+
+void RobotBridge::setPointCloudVisible(bool visible)
+{
+    if (m_scene)
+        m_scene->setPointCloudVisible(visible);
+}
+
+void RobotBridge::setPointCloudLink(const QString& linkName)
+{
+    if (m_scene)
+        m_scene->setPointCloudLink(linkName);
+}
+
+float RobotBridge::pointCloudPointSize() const
+{
+    return m_scene ? m_scene->pointCloudPointSize() : 2.0f;
+}
+
+void RobotBridge::setPointCloudPointSize(float size)
+{
+    if (m_scene)
+        m_scene->setPointCloudPointSize(size);
+    emit pointCloudPointSizeChanged();
+}
+
+void RobotBridge::openPointCloud()
+{
+    QString filename = QFileDialog::getOpenFileName(
+        nullptr,
+        tr("打开点云文件"),
+        m_lastPlyPath.isEmpty() ? QString() : QFileInfo(m_lastPlyPath).absolutePath(),
+        tr("点云文件 (*.ply);;所有文件 (*.*)")
+    );
+    if (filename.isEmpty())
+        return;
+
+    m_lastPlyPath = filename;
+
+    // 若尚未选择 link，使用第一个 link 作为默认坐标系
+    QString link = m_scene ? m_scene->pointCloudLink() : QString();
+    if (link.isEmpty()) {
+        const QStringList links = linkNames();
+        if (!links.isEmpty())
+            link = links.first();
+    }
+
+    if (m_scene && m_scene->addPointCloud(filename, link)) {
+        m_statusMessage = tr("已加载点云: %1").arg(filename);
+        emit statusMessageChanged();
+    }
+}
+
+void RobotBridge::removePointCloud()
+{
+    if (m_scene)
+        m_scene->removePointCloud();
+    m_statusMessage = tr("已清除点云");
+    emit statusMessageChanged();
 }
 
 // 关节控制

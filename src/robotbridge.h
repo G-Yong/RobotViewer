@@ -63,6 +63,12 @@ class RobotBridge : public QObject
     Q_PROPERTY(bool autoScaleEnabled READ autoScaleEnabled WRITE setAutoScaleEnabled NOTIFY autoScaleEnabledChanged)
     Q_PROPERTY(bool showTrajectory READ showTrajectory WRITE setShowTrajectory NOTIFY showTrajectoryChanged)
     Q_PROPERTY(double trajectoryLifetime READ trajectoryLifetime WRITE setTrajectoryLifetime NOTIFY trajectoryLifetimeChanged)
+
+    // 点云属性
+    Q_PROPERTY(bool pointCloudVisible READ pointCloudVisible WRITE setPointCloudVisible NOTIFY pointCloudVisibleChanged)
+    Q_PROPERTY(bool pointCloudLoaded READ pointCloudLoaded NOTIFY pointCloudLoadedChanged)
+    Q_PROPERTY(QString pointCloudLink READ pointCloudLink WRITE setPointCloudLink NOTIFY pointCloudLinkChanged)
+    Q_PROPERTY(float pointCloudPointSize READ pointCloudPointSize WRITE setPointCloudPointSize NOTIFY pointCloudPointSizeChanged)
     
     // OPC UA属性
     Q_PROPERTY(QString opcuaServerUrl READ opcuaServerUrl WRITE setOpcuaServerUrl NOTIFY opcuaServerUrlChanged)
@@ -115,6 +121,12 @@ public:
     bool autoScaleEnabled() const { return m_viewOptions.state().autoScaleEnabled; }
     bool showTrajectory() const { return m_viewOptions.state().showTrajectory; }
     double trajectoryLifetime() const { return m_viewOptions.state().trajectoryLifetime; }
+
+    // 点云 Getters
+    bool pointCloudVisible() const;
+    bool pointCloudLoaded() const;
+    QString pointCloudLink() const;
+    float pointCloudPointSize() const;
     
     // 视图选项 Setters
     void setShowGrid(bool show);
@@ -125,6 +137,11 @@ public:
     void setAutoScaleEnabled(bool enabled);
     void setShowTrajectory(bool show);
     void setTrajectoryLifetime(double seconds);
+
+    // 点云 Setters
+    void setPointCloudVisible(bool visible);
+    void setPointCloudLink(const QString& linkName);
+    void setPointCloudPointSize(float size);
     
     // OPC UA Getters
     QString opcuaServerUrl() const { return m_opcuaServerUrl; }
@@ -149,6 +166,10 @@ public slots:
     // 相机控制
     Q_INVOKABLE void resetCamera();
     Q_INVOKABLE void fitCamera();
+
+    // 点云操作
+    Q_INVOKABLE void openPointCloud();
+    Q_INVOKABLE void removePointCloud();
     
     // 将C++场景挂载到QML的Scene3D根节点
     Q_INVOKABLE void attachToSceneRoot(Qt3DCore::QEntity* qmlSceneRoot);
@@ -201,6 +222,12 @@ signals:
     void autoScaleEnabledChanged();
     void showTrajectoryChanged();
     void trajectoryLifetimeChanged();
+
+    // 点云信号
+    void pointCloudVisibleChanged();
+    void pointCloudLoadedChanged();
+    void pointCloudLinkChanged();
+    void pointCloudPointSizeChanged();
     
     // OPC UA信号
     void opcuaServerUrlChanged();
@@ -242,6 +269,7 @@ private:
     bool m_isLoading = false;
     QString m_statusMessage;
     QString m_lastUrdfPath;
+    QString m_lastPlyPath;
     
     // 末端位置
     QVector3D m_endEffectorPosition;
