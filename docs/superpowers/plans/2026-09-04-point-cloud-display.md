@@ -188,11 +188,6 @@ PointCloudEntity::PointCloudEntity(Qt3DCore::QEntity* parent)
     addComponent(m_renderer);
 
     createShaderMaterial();
-
-    // 启用 GL_PROGRAM_POINT_SIZE，使 shader 中 gl_PointSize 生效
-    Qt3DRender::QPointSize* pointSize = new Qt3DRender::QPointSize(this);
-    pointSize->setSize(m_pointSize);
-    addComponent(pointSize);
 }
 
 PointCloudEntity::~PointCloudEntity()
@@ -217,8 +212,14 @@ void PointCloudEntity::createShaderMaterial()
     Qt3DRender::QRenderPass* pass = new Qt3DRender::QRenderPass(technique);
     technique->addRenderPass(pass);
 
+    // 启用 GL_PROGRAM_POINT_SIZE，使 shader 中的 gl_PointSize 生效（Programmable 模式）
+    Qt3DRender::QPointSize* pointSize = new Qt3DRender::QPointSize();
+    pointSize->setSizeMode(Qt3DRender::QPointSize::Programmable);
+    pointSize->setValue(m_pointSize);
+    pass->addRenderState(pointSize);
+
     Qt3DRender::QShaderProgram* shader = new Qt3DRender::QShaderProgram(pass);
-    shader->setVertexShaderCode(QStringLiteral(
+    shader->setVertexShaderCode(QByteArrayLiteral(
         "#version 430 core\n"
         "in vec3 position;\n"
         "in vec3 color;\n"
@@ -230,7 +231,7 @@ void PointCloudEntity::createShaderMaterial()
         "    gl_Position = modelViewProjection * vec4(position, 1.0);\n"
         "    gl_PointSize = pointSize;\n"
         "}\n"));
-    shader->setFragmentShaderCode(QStringLiteral(
+    shader->setFragmentShaderCode(QByteArrayLiteral(
         "#version 430 core\n"
         "in vec3 vColor;\n"
         "out vec4 fragColor;\n"
