@@ -130,6 +130,68 @@ ScrollView {
             }
         }
         
+        // 点云选项
+        SettingsGroup {
+            title: qsTr("点云")
+            iconText: "🧊"
+            Layout.fillWidth: true
+
+            ColumnLayout {
+                spacing: 12
+
+                GlassComboBox {
+                    Layout.fillWidth: true
+                    model: robotBridge ? robotBridge.linkNames : []
+                    currentValue: robotBridge ? robotBridge.pointCloudLink : ""
+                    placeholder: qsTr("选择点云坐标系Link")
+                    onValueChanged: function(value) {
+                        if (robotBridge) robotBridge.pointCloudLink = value
+                    }
+                }
+
+                GlassButton {
+                    Layout.fillWidth: true
+                    text: qsTr("加载点云…")
+                    iconText: "🧊"
+                    height: 36
+                    onClicked: {
+                        if (robotBridge) robotBridge.openPointCloud()
+                    }
+                }
+
+                GlassToggle {
+                    text: qsTr("显示点云")
+                    checked: robotBridge ? (robotBridge.pointCloudLoaded && robotBridge.pointCloudVisible) : false
+                    onToggled: function(checked) {
+                        if (robotBridge) robotBridge.pointCloudVisible = checked
+                    }
+                }
+
+                GlassSlider {
+                    Layout.fillWidth: true
+                    label: qsTr("点大小")
+                    from: 1
+                    to: 10
+                    value: robotBridge ? robotBridge.pointCloudPointSize : 2
+                    suffix: " px"
+                    decimals: 0
+                    onValueModified: function(newValue) {
+                        if (robotBridge) robotBridge.pointCloudPointSize = newValue
+                    }
+                }
+
+                GlassButton {
+                    Layout.fillWidth: true
+                    text: qsTr("清除点云")
+                    iconText: "🗑"
+                    height: 36
+                    onClicked: {
+                        if (robotBridge) robotBridge.removePointCloud()
+                    }
+                }
+            }
+        }
+
         // 相机选项
         SettingsGroup {
             title: qsTr("相机控制")
