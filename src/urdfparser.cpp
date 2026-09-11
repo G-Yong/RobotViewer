@@ -6,7 +6,7 @@
 #include <QtMath>
 #include <QDebug>
 #include <QRegularExpression>
-#include <QRegularExpression>
+#include <QSet>
 
 // ==================== Origin ====================
 
@@ -80,15 +80,120 @@ QMatrix4x4 URDFJoint::getTransform(double value) const
 
 // ==================== URDFModel ====================
 
+namespace {
+
+// 按 URDF 文档顺序返回指定链接的子关节
+// （不能直接用 URDFModel::getChildJoints，它遍历 QMap，得到的是字典序）
+QVector<std::shared_ptr<URDFJoint>> childJointsInDocumentOrder(const URDFModel& model,
+                                                               const QString& linkName)
+{
+    QVector<std::shared_ptr<URDFJoint>> childJoints;
+
+    for (const QString& jointName : model.jointOrder) {
+        auto it = model.joints.constFind(jointName);
+        if (it != model.joints.constEnd() && (*it)->parentLink == linkName) {
+            childJoints.append(*it);
+        }
+    }
+
+    // 兜底：jointOrder 中缺失的关节（正常解析流程不会出现）
+    for (auto it = model.joints.constBegin(); it != model.joints.constEnd(); ++it) {
+        if (it.value()->parentLink == linkName && !model.jointOrder.contains(it.key())) {
+            childJoints.append(it.value());
+        }
+    }
+
+    return childJoints;
+}
+
+// 从 linkName 出发深度优先遍历关节树，按顺序收集所有关节
+void collectJointsInTreeOrder(const URDFModel& model, const QString& linkName,
+                              QVector<std::shared_ptr<URDFJoint>>& ordered,
+                              QSet<QString>& visitedLinks)
+{
+    if (linkName.isEmpty() || visitedLinks.contains(linkName)) {
+        return; // 防止 URDF 中存在环导致死循环
+    }
+    visitedLinks.insert(linkName);
+
+    for (const auto& joint : childJointsInDocumentOrder(model, linkName)) {
+        ordered.append(joint);
+        collectJointsInTreeOrder(model, joint->childLink, ordered, visitedLinks);
+    }
+}
+
+// 从 linkName 出发深度优先遍历关节树，按顺序收集链接名
+void collectLinkNamesInTreeOrder(const URDFModel& model, const QString& linkName,
+                                 QStringList& ordered, QSet<QString>& visitedLinks)
+{
+    if (linkName.isEmpty() || visitedLinks.contains(linkName)) {
+        return; // 防止 URDF 中存在环导致死循环
+    }
+    visitedLinks.insert(linkName);
+
+    if (model.links.contains(linkName)) {
+        ordered.append(linkName);
+    }
+
+    for (const auto& joint : childJointsInDocumentOrder(model, linkName)) {
+        collectLinkNamesInTreeOrder(model, joint->childLink, ordered, visitedLinks);
+    }
+}
+
+} // namespace
+
 QVector<std::shared_ptr<URDFJoint>> URDFModel::getMovableJoints() const
 {
+    // 按关节树顺序（深度优先）收集全部关节，再过滤出可动关节，
+    // 保证界面上的关节顺序与机器人关节链一致，而不是字典序。
+    QVector<std::shared_ptr<URDFJoint>> allJoints;
+    QSet<QString> visitedLinks;
+    collectJointsInTreeOrder(*this, rootLink, allJoints, visitedLinks);
+
+    // 兜底：未能从根链接遍历到的关节（如 URDF 存在环、rootLink 异常），
+    // 按文档顺序补在末尾，保证不丢关节
+    QSet<QString> collectedNames;
+    for (const auto& j : allJoints) {
+        collectedNames.insert(j->name);
+    }
+    auto appendIfMissing = [&](const std::shared_ptr<URDFJoint>& j) {
+        if (j && !collectedNames.contains(j->name)) {
+            collectedNames.insert(j->name);
+            allJoints.append(j);
+        }
+    };
+    for (const QString& jointName : jointOrder) {
+        appendIfMissing(joints.value(jointName));
+    }
+    for (auto it = joints.constBegin(); it != joints.constEnd(); ++it) {
+        appendIfMissing(it.value());
+    }
+
     QVector<std::shared_ptr<URDFJoint>> movableJoints;
-    for (auto& joint : joints) {
+    for (const auto& joint : allJoints) {
         if (joint->isMovable()) {
             movableJoints.append(joint);
         }
     }
     return movableJoints;
+}
+
+QStringList URDFModel::getLinkNamesInTreeOrder() const
+{
+    // 按关节树顺序（深度优先）返回链接名，根链接在最前，
+    // 而不是 QMap 迭代得到的字典序。
+    QStringList orderedLinks;
+    QSet<QString> visitedLinks;
+    collectLinkNamesInTreeOrder(*this, rootLink, orderedLinks, visitedLinks);
+
+    // 兜底：未被任何关节引用/与根链接不连通的链接，按链接表顺序补在末尾
+    for (auto it = links.constBegin(); it != links.constEnd(); ++it) {
+        if (!visitedLinks.contains(it.key())) {
+            visitedLinks.insert(it.key());
+            orderedLinks.append(it.key());
+        }
+    }
+    return orderedLinks;
 }
 
 QVector<std::shared_ptr<URDFJoint>> URDFModel::getChildJoints(const QString& linkName) const
@@ -352,6 +457,7 @@ bool URDFParser::parseJoint(const QDomElement& element)
     }
     
     m_model->joints[joint->name] = joint;
+    m_model->jointOrder.append(joint->name);
     return true;
 }
 

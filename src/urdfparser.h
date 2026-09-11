@@ -2,6 +2,7 @@
 #define URDFPARSER_H
 
 #include <QString>
+#include <QStringList>
 #include <QVector3D>
 #include <QQuaternion>
 #include <QMatrix4x4>
@@ -162,12 +163,26 @@ struct URDFModel {
     QString name;
     QMap<QString, std::shared_ptr<URDFLink>> links;
     QMap<QString, std::shared_ptr<URDFJoint>> joints;
+    // 关节名按 URDF 文档中的出现顺序记录（QMap 迭代是字典序，丢失了原始顺序），
+    // 用于遍历关节树时确定同级关节的先后顺序
+    QVector<QString> jointOrder;
     QString rootLink; // 根链接名称
     
     /**
      * @brief 获取可动关节列表
+     *
+     * 顺序为关节树顺序：从根链接出发对关节树做深度优先遍历，
+     * 同级关节按其在 URDF 文档中的出现顺序排列。
      */
     QVector<std::shared_ptr<URDFJoint>> getMovableJoints() const;
+    
+    /**
+     * @brief 获取链接名列表
+     *
+     * 顺序为关节树顺序：从根链接出发对关节树做深度优先遍历，
+     * 同级链接按其在 URDF 文档中的出现顺序排列（而不是字典序）。
+     */
+    QStringList getLinkNamesInTreeOrder() const;
     
     /**
      * @brief 获取链接的子关节

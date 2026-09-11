@@ -368,11 +368,9 @@ void RobotBridge::updateLinkNames()
     if (!robot || !robot->getModel()) return;
     
     auto model = robot->getModel();
-    for (auto it = model->links.constBegin(); it != model->links.constEnd(); ++it) {
-        m_linkNames.append(it.key());
-    }
+    // 按关节树顺序返回链接（根链接在最前），而不是字典序
+    m_linkNames = model->getLinkNamesInTreeOrder();
     
-    m_linkNames.sort();
     emit linkNamesChanged();
 }
 
